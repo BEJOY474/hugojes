@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+// 💡 Import useRouter from next/navigation
+import { useRouter } from "next/navigation";
 import { Inter } from "next/font/google";
 import HeaderText1 from "@/components/HeaderText1";
 import Image from "next/image";
@@ -18,6 +20,9 @@ export const inter = Inter({
 });
 
 const Login: React.FC = () => {
+  // 💡 Initialize the router hook
+  const router = useRouter();
+
   // ✅ States
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -45,6 +50,11 @@ const Login: React.FC = () => {
     }
 
     console.log("Login Submitted:", { email, password });
+
+    // 🚀 Navigation added here
+    // In a real application, you would perform an API call for authentication
+    // before navigating. Assuming successful login after validation:
+    router.push("/dashboard");
   };
 
   return (
