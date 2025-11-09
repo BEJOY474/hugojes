@@ -44,10 +44,6 @@ const NavLinks: NavLinkItem[] = [
   { href: "/settings", text: "Settings", icon: Settings }, // Using Settings icon
 ];
 
-// NOTE: SidebarItem component was not used in the final render logic
-// and relied on next/link, while SideBar uses buttons and state.
-// It has been removed for component cleanup.
-
 const SideBar: React.FC<SideBarProps> = ({
   activeItem,
   setActiveItem,

@@ -70,7 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({
       className={`fixed top-0 left-0 h-screen w-64 bg-white p-4 flex flex-col justify-between z-50 
       transition-transform duration-300 ease-in-out
       ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-      lg:translate-x-0 lg:static lg:flex-shrink-0 shadow-sm`}
+      lg:translate-x-0 lg:static lg:flex-shrink-0`}
     >
       <div>
         <div className="flex items-center justify-between space-x-2 mb-8">
@@ -185,7 +185,13 @@ const SideBar: React.FC<SideBarProps> = ({
 
       {/* Footer */}
       <div className="space-y-2">
-        <div className="flex items-center justify-start text-gray-600 hover:text-indigo-700 cursor-pointer p-2 rounded-lg transition-colors duration-150">
+        <div
+          className="flex items-center justify-start text-gray-600 hover:text-indigo-700 cursor-pointer p-2 rounded-lg transition-colors duration-150"
+          onClick={() => {
+            setActiveItem("Settings"); // Update active item to "Settings"
+            toggleSidebar(false); // Optionally close sidebar on click
+          }}
+        >
           <Settings className="h-5 w-5 mr-3" />
           <span className={`${inter.className} text-[16px] text-[#3D3D3A]`}>
             Settings
@@ -271,16 +277,11 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ toggleSidebar }) => (
   </header>
 );
 
-// Assuming MainContentProps type would be defined here or imported
-// For simplicity, let's define it assuming contentMap is an object with string keys and string/null values
 interface MainContentProps {
   activeItem: string;
   contentMap: { [key: string]: string | null };
   setActiveItem: (item: string) => void;
 }
-
-// NOTE: Since MainContent is not provided, I'll assume it's correctly typed
-// or will be correctly typed by simply passing the props below.
 
 const contentMap = {
   "New Chat": null,

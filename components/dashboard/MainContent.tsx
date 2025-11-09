@@ -19,13 +19,12 @@ import dislikeIcon from "@/public/image/dashboard/dislike.svg";
 import reloadIcon from "@/public/image/dashboard/refresh.svg";
 
 import { Inter } from "next/font/google";
+import Settings from "./Settings";
 export const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
 });
-
-// --- কমন ইন্টারফেস/প্রপস ডেফিনিশন ---
 
 interface SlashCommandPopupProps {
   command: string;
@@ -48,12 +47,9 @@ interface ChatContentDisplayProps {
 
 interface MainContentProps {
   activeItem: string;
-  // contentMap এর টাইপ আপনার কোডে স্পষ্ট নয়, তাই আপাতত এটি any
   contentMap?: any;
   setActiveItem: (item: string) => void;
 }
-
-// --- কম্পোনেন্ট ডেফিনিশন শুরু ---
 
 const KnowledgeIconComponent = () => (
   <span className="mr-3 rounded-full flex items-center justify-center">
@@ -378,7 +374,6 @@ const MainContent = ({
   contentMap,
   setActiveItem,
 }: MainContentProps) => {
-  // FIX: useRef-এ সঠিক DOM এলিমেন্ট টাইপ প্রয়োগ করা হলো
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const chatPlaceholder = "How can I help you today?";
@@ -397,6 +392,8 @@ const MainContent = ({
   const isNewChatView = activeItem === "New Chat";
   const isChatListView = activeItem === "Chats";
   const isLibraryView = activeItem === "Library";
+  // FIX: isSettingsView is not defined in the original code, but used in the conditional rendering.
+  const isSettingsView = activeItem === "Settings";
 
   const chatTitle = "Custom Tool Integration UI Fields";
 
@@ -454,14 +451,12 @@ const MainContent = ({
   }
 
   if (isNewChatView) {
-    // FIX: event-এর টাইপ নিশ্চিত করা হলো
     const handleInputChange = (
       event: React.ChangeEvent<HTMLTextAreaElement>
     ) => {
       const value = event.target.value;
       setNewChatInputValue(value);
 
-      // FIX: element-এর টাইপ নিশ্চিত করা হলো
       const element = textareaRef.current;
       if (element) {
         element.style.height = "auto";
@@ -592,6 +587,14 @@ const MainContent = ({
             </div>
           </div>
         </div>
+      </main>
+    );
+  }
+
+  if (isSettingsView) {
+    return (
+      <main className="flex-1 min-h-screen lg:bg-[#F5F5F5]">
+        <Settings />
       </main>
     );
   }
