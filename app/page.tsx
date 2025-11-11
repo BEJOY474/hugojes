@@ -8,9 +8,9 @@ import Login from "./login/page";
 export default function Home() {
   return (
     <>
-      {/* <CreateAccountPage /> */}
+      <CreateAccountPage />
       {/* <Login /> */}
-      <Dashboard />
+      {/* <Dashboard /> */}
       {/* <Admin /> */}
     </>
   );
