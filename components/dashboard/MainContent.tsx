@@ -192,7 +192,6 @@ const ChatContentDisplay = ({
   const [showSlashCommand, setShowSlashCommand] = useState(false);
   const [slashCommandValue, setSlashCommandValue] = useState("");
 
-  // FIX: useRef-এ সঠিক DOM এলিমেন্ট টাইপ প্রয়োগ করা হলো
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const chatBodyRef = useRef<HTMLDivElement | null>(null);
 
@@ -212,7 +211,6 @@ const ChatContentDisplay = ({
   ]);
 
   const scrollToBottom = () => {
-    // FIX: chatBodyRef.current চেক করা হলো
     if (chatBodyRef.current) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
@@ -226,7 +224,6 @@ const ChatContentDisplay = ({
     const value = event.target.value;
     setInputValue(value);
 
-    // FIX: element-এর টাইপ নিশ্চিত করা হলো
     const element = textareaRef.current;
     if (element) {
       element.style.height = "auto";
@@ -262,7 +259,6 @@ const ChatContentDisplay = ({
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputValue("");
 
-    // FIX: textareaRef.current চেক করা হলো
     if (textareaRef.current) {
       textareaRef.current.style.height = "24px";
     }

@@ -8,7 +8,7 @@ import askAIIcon from "@/public/image/dashboard/sparkles.svg";
 import filePlaceholderImage from "@/public/image/dashboard/upload.svg";
 import uploadImage from "@/public/image/dashboard/upload.svg";
 import foodImage from "@/public/image/dashboard/foodImage.png";
-import downArrow from "@/public/image/dashboard/downArrow.svg"; // 👈 Imported downArrow
+import downArrow from "@/public/image/dashboard/downArrow.svg";
 
 import { Inter } from "next/font/google";
 export const inter = Inter({
@@ -17,8 +17,17 @@ export const inter = Inter({
   variable: "--font-inter",
 });
 
+// --- TypeScript Interface for File Data ---
+interface FileData {
+  id: number;
+  name: string;
+  uploaded: string;
+  thumbnail: string;
+}
+
 // Dati fittizi per i file
-const INITIAL_DUMMY_FILES = [
+const INITIAL_DUMMY_FILES: FileData[] = [
+  // Added type annotation here
   {
     id: 1,
     name: "Getting Started Guide.pdf",
@@ -57,18 +66,96 @@ const INITIAL_DUMMY_FILES = [
   },
 ];
 
-// --- Componente per la vista File (Library) ---
-const FileManagementView = () => {
-  // 1. Manage the file list state
-  const [files, setFiles] = useState(INITIAL_DUMMY_FILES);
+// --- TypeScript Interface for ConfirmationModal Props ---
+interface ConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  fileName: string;
+}
 
-  // 2. Delete handler function
-  const handleDeleteFile = (id: number) => {
-    // Filter out the file with the given id
-    const updatedFiles = files.filter((file) => file.id !== id);
-    // Update the state
-    setFiles(updatedFiles);
-    console.log(`File with ID ${id} deleted.`);
+// --- Confirmation Modal Component (FIXED) ---
+// This is a simple modal. You can make it more sophisticated if needed.
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  fileName,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    // Backdrop
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      {/* Modal Content */}
+      <div
+        className={`${inter.className} bg-white rounded-lg shadow-xl p-6 w-96 max-w-[90%] mx-4`}
+      >
+        <h3 className="text-xl font-semibold text-[#101828] mb-4">
+          Confirm Deletion
+        </h3>
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete the file: {fileName}? This action
+          cannot be undone.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Componente per la vista File (Library) ---
+const FileManagementView: React.FC = () => {
+  // 1. Manage the file list state
+  const [files, setFiles] = useState<FileData[]>(INITIAL_DUMMY_FILES); // Added type annotation here
+
+  // 2. State for the modal
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // 3. State to store the ID of the file to be deleted
+  const [fileToDeleteId, setFileToDeleteId] = useState<number | null>(null);
+  // 4. State to store the NAME of the file to be deleted (for display in modal)
+  const [fileToDeleteName, setFileToDeleteName] = useState<string>("");
+
+  // 5. Handler to open the modal
+  const handleOpenDeleteModal = (id: number, name: string): void => {
+    setFileToDeleteId(id);
+    setFileToDeleteName(name);
+    setIsModalOpen(true);
+  };
+
+  // 6. Handler to close the modal
+  const handleCloseDeleteModal = (): void => {
+    setIsModalOpen(false);
+    setFileToDeleteId(null);
+    setFileToDeleteName("");
+  };
+
+  // 7. Actual delete logic
+  const confirmDeleteFile = (): void => {
+    if (fileToDeleteId !== null) {
+      // Filter out the file with the given id
+      const updatedFiles = files.filter((file) => file.id !== fileToDeleteId);
+      // Update the state
+      setFiles(updatedFiles);
+      console.log(`File with ID ${fileToDeleteId} deleted.`);
+    }
+    // Close the modal and reset states regardless of deletion status
+    handleCloseDeleteModal();
   };
 
   // Check if the file list is empty
@@ -195,10 +282,11 @@ const FileManagementView = () => {
                       Ask AI
                     </button>
 
-                    {/* Delete Button */}
+                    {/* Delete Button (UPDATED) */}
                     <button
                       className="p-1 rounded-full text-gray-500 shadow-md hover:text-red-500 transition-colors"
-                      onClick={() => handleDeleteFile(file.id)}
+                      // Call the new handler to open the modal
+                      onClick={() => handleOpenDeleteModal(file.id, file.name)}
                     >
                       <Image
                         src={trashIcon}
@@ -227,6 +315,14 @@ const FileManagementView = () => {
           ))}
         </div>
       )}
+
+      {/* Confirmation Modal Component (NEW) */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={confirmDeleteFile}
+        fileName={fileToDeleteName}
+      />
     </div>
   );
 };
