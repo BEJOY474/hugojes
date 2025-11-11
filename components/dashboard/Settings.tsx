@@ -447,25 +447,25 @@ const MyDetails = ({
         <div className="flex space-x-3">
           <input
             type="text"
-            placeholder="First name" // Added placeholder
+            placeholder="First name"
             value={name.first}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setName({ ...name, first: e.target.value })
             }
-            className="flex-1 block w-full bg-white border border-[#d5d7da] rounded-[8] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] focus:outline-none text-[14px] p-2.5"
+            className={`${inter.className} flex-1 block w-full bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-gray-800 placeholder:text-gray-400 text-[16px] p-2.5`}
           />
           <input
             type="text"
-            placeholder="Last name" // Added placeholder
+            placeholder="Last name"
             value={name.last}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setName({ ...name, last: e.target.value })
             }
-            className={`${inter.className} flex-1 block w-full bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
+            className={`${inter.className} flex-1 block w-full bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-gray-800 placeholder:text-gray-400 text-[16px] p-2.5`}
           />
         </div>
       </InputField>
-      <hr className=" border-gray-200" />
+      <hr className="border-gray-200" />
 
       {/* Email address */}
       <InputField label="Email address">
@@ -476,31 +476,32 @@ const MyDetails = ({
               alt="Email Icon"
               height={16}
               width={16}
-              className="object-contain text-gray-300"
+              className="object-contain text-gray-400"
             />
           </div>
           <input
             type="email"
+            placeholder="Enter your email"
             value={email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setEmail(e.target.value)
             }
-            className={`${inter.className} block w-full bg-white border transition-opacity border-[#d5d7da] rounded-[8] focus:outline-none text-gray-300 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pl-10`}
+            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none text-gray-800 placeholder:text-gray-400 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pl-10`}
           />
         </div>
       </InputField>
-      <hr className=" border-gray-200" />
+      <hr className="border-gray-200" />
 
-      {/* Student or Professional (Dropdown) - ADDED */}
+      {/* Student or Professional (Dropdown) */}
       <InputField label="Student or Professional">
         <div className="relative">
           <select
             value={role}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               setRole(e.target.value as RoleType);
-              setAffiliation(""); // Clear affiliation when role changes
+              setAffiliation("");
             }}
-            className={`${inter.className} block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pr-10`}
+            className={`${inter.className} block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none text-gray-800 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pr-10`}
           >
             <option value="" disabled>
               Select an option
@@ -512,7 +513,7 @@ const MyDetails = ({
         </div>
       </InputField>
 
-      {/* Conditional Affiliation Field - ADDED */}
+      {/* Conditional Affiliation Field */}
       {role && (
         <InputField
           label={role === "Student" ? "University Name" : "Company Name"}
@@ -526,12 +527,12 @@ const MyDetails = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setAffiliation(e.target.value)
             }
-            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
+            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none text-gray-800 placeholder:text-gray-400 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
           />
         </InputField>
       )}
 
-      {/* Position Field - ADDED */}
+      {/* Position Field */}
       {role === "Professional" && (
         <InputField label="Position">
           <input
@@ -541,7 +542,7 @@ const MyDetails = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setPosition(e.target.value)
             }
-            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
+            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none text-gray-800 placeholder:text-gray-400 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
           />
         </InputField>
       )}
@@ -554,7 +555,7 @@ const MyDetails = ({
       >
         <PhotoUpload />
       </InputField>
-      <hr className=" border-gray-200" />
+      <hr className="border-gray-200" />
 
       {/* Country (Dropdown) */}
       <InputField label="Country">
@@ -571,7 +572,7 @@ const MyDetails = ({
           <select
             value={country}
             onChange={handleCountryChange}
-            className={`${inter.className} block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pl-10 pr-10`}
+            className={`${inter.className} block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8px] focus:outline-none text-gray-800 shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pl-10 pr-10`}
           >
             {countryData.map((c) => (
               <option key={c.code} value={c.name}>
@@ -582,7 +583,7 @@ const MyDetails = ({
           <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         </div>
       </InputField>
-      <hr className=" border-gray-200" />
+      <hr className="border-gray-200" />
 
       {/* Timezone (Dropdown) */}
       <InputField label="Timezone" className="border-b-0">
@@ -601,7 +602,7 @@ const MyDetails = ({
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setTimezone(e.target.value)
             }
-            className={`${inter.className} focus:outline-none block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pl-10 pr-10`}
+            className={`${inter.className} focus:outline-none block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-gray-800 placeholder:text-gray-400 text-[16px] p-2.5 pl-10 pr-10`}
           >
             {uniqueTimezones.map((tz) => (
               <option key={tz} value={tz}>

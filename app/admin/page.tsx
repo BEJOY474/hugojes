@@ -2,26 +2,17 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  Settings,
-  X,
-  ChevronDown,
-  Search,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-} from "lucide-react"; // Added lucide icons
+import { Settings, X, ChevronDown } from "lucide-react";
 import { Inter, Poppins } from "next/font/google";
 
-// --- Placeholder Imports for components you didn't provide ---
-// NOTE: You must ensure these files exist in your project structure.
+// Placeholder imports (ensure paths exist)
 import Graph from "@/components/admin/Graph";
 import KnowledgeView from "@/components/admin/Knowledge";
 import Svg from "@/components/dashboard/Svg";
-import UserManagementView from "@/components/admin/UserManagement"; // <-- NEW IMPORT
+import UserManagementView from "@/components/admin/UserManagement";
+import SettingsView from "@/components/admin/SettingsView";
 
-// --- Image Imports (ensure paths are correct) ---
+// Image imports (ensure paths exist)
 import pIcon from "@/public/image/dashboard/pIcon.svg";
 import menuIcon from "@/public/image/dashboard/menu-outline.svg";
 import userIcon from "@/public/image/Admin/Icon (1).svg";
@@ -32,33 +23,72 @@ import growthIconBlue from "@/public/image/Admin/Icon (4).svg";
 import homeIcon from "@/public/image/Admin/home.svg";
 import userImage from "@/public/image/Admin/userIcon.jpg";
 import bellIcon from "@/public/image/Admin/bell.svg";
-import SettingsView from "@/components/admin/SettingsView";
 
-// --- Font Definitions ---
+// Fonts
 export const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
 });
-
 const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-poppins",
 });
 
-// --- Interface Definitions ---
+// ----------------- NAV ITEMS -----------------
 interface NavItem {
   name: string;
   icon: string;
 }
-
 const sidebarNavItems: NavItem[] = [
   { name: "Overview", icon: homeIcon },
   { name: "Knowledge", icon: knowledgeIcon },
   { name: "Users", icon: userIcon },
 ];
 
+// ----------------- TEXTAREA COMPONENT -----------------
+interface TextAreaProps {
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  onChange?: (val: string) => void;
+  rows?: number;
+}
+
+const TextArea: React.FC<TextAreaProps> = ({
+  label,
+  placeholder,
+  value = "",
+  onChange,
+  rows = 5,
+}) => {
+  const [text, setText] = useState<string>(value);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+    if (onChange) onChange(e.target.value);
+  };
+
+  return (
+    <div className="flex flex-col w-full">
+      {label && (
+        <label className="text-gray-700 font-medium mb-2 text-[14px]">
+          {label}
+        </label>
+      )}
+      <textarea
+        value={text}
+        onChange={handleChange}
+        placeholder={placeholder}
+        rows={rows}
+        className="p-3 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#7F56D9] resize-none w-full text-[14px] text-gray-800"
+      />
+    </div>
+  );
+};
+
+// ----------------- SIDEBAR -----------------
 interface SideBarProps {
   activeItem: string;
   setActiveItem: (item: string) => void;
@@ -71,7 +101,6 @@ interface SideBarProps {
   toggleCollapse: () => void;
 }
 
-// ----------------- SIDEBAR COMPONENT -----------------
 const SideBar: React.FC<SideBarProps> = ({
   activeItem,
   setActiveItem,
@@ -82,11 +111,11 @@ const SideBar: React.FC<SideBarProps> = ({
   toggleSidebar,
   toggleCollapse,
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleLogout = () => {
     console.log("Logged out");
-    setIsDropdownOpen(false); // Close dropdown after logout
+    setIsDropdownOpen(false);
   };
 
   const baseWidthClass = isCollapsed ? "w-20" : "w-64";
@@ -103,7 +132,6 @@ const SideBar: React.FC<SideBarProps> = ({
         style={{ borderRight: "1px solid rgba(0,0,0,0.04)" }}
       >
         <div>
-          {/* Header */}
           <div
             className={`flex items-center justify-between mb-8 pr-2 ${
               isCollapsed ? "justify-center" : ""
@@ -115,7 +143,7 @@ const SideBar: React.FC<SideBarProps> = ({
               <div className="h-6 w-6 relative flex-shrink-0 mr-1">
                 <Image
                   src={pIcon}
-                  alt="Petrobasin Logo"
+                  alt="Logo"
                   fill
                   style={{ objectFit: "contain" }}
                 />
@@ -128,14 +156,11 @@ const SideBar: React.FC<SideBarProps> = ({
                 </span>
               )}
             </div>
-
-            {/* Close button for small screens and collapse toggle */}
             <div className="flex items-center">
               {!isCollapsed && (
                 <button
                   className="lg:hidden p-2 text-[#3D3D3A]"
                   onClick={() => toggleSidebar(false)}
-                  aria-label="Close menu"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -144,14 +169,12 @@ const SideBar: React.FC<SideBarProps> = ({
                 className="hidden lg:inline-flex items-center p-2 text-gray-600"
                 onClick={toggleCollapse}
                 aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                title={isCollapsed ? "Expand" : "Collapse"}
               >
                 <Svg />
               </button>
             </div>
           </div>
 
-          {/* Navigation */}
           <nav className={`${inter.className} text-[16px] space-y-1`}>
             {sidebarNavItems.map((item) => {
               const isActive = activeItem === item.name;
@@ -163,21 +186,31 @@ const SideBar: React.FC<SideBarProps> = ({
                     toggleSidebar(false);
                   }}
                   className={`flex items-center w-full ${itemPadding} rounded-md transition-colors duration-150 relative group
-                  ${
-                    isActive
-                      ? "bg-[#F9F5FF] text-[#7F56D9] font-medium"
-                      : "text-[#3d3d3a] hover:bg-gray-100"
-                  }`}
+                    ${
+                      isActive
+                        ? "bg-[#F9F5FF] text-[#7F56D9] font-medium"
+                        : "text-[#3d3d3a] hover:bg-gray-100"
+                    }`}
                   title={isCollapsed ? item.name : undefined}
                 >
                   {isActive && (
                     <div
-                      className={`absolute left-0 top-0 bottom-0 w-1 bg-[#7F56D9] rounded-l-md ${
-                        isCollapsed ? "left-0" : ""
-                      }`}
+                      className={`absolute left-0 top-0 bottom-0 w-1 bg-[#7F56D9] rounded-l-md`}
                     />
                   )}
-                  <div className="h-5 w-5 relative flex-shrink-0 mr-3 flex items-center justify-center"></div>
+                  <div className="h-5 w-5 relative flex-shrink-0 mr-3 flex items-center justify-center">
+                    <Image
+                      src={item.icon}
+                      alt={`${item.name} Icon`}
+                      width={20}
+                      height={20}
+                      className={`object-contain ${
+                        isActive
+                          ? "opacity-100"
+                          : "opacity-80 group-hover:opacity-100"
+                      }`}
+                    />
+                  </div>
                   {!isCollapsed && (
                     <span className="text-[16px]">{item.name}</span>
                   )}
@@ -185,19 +218,18 @@ const SideBar: React.FC<SideBarProps> = ({
               );
             })}
 
-            {/* Settings */}
             <button
               onClick={() => setActiveItem("Settings")}
               className={`flex items-center w-full ${itemPadding} mt-4 rounded-md transition-colors duration-150 relative group
-              ${
-                activeItem === "Settings"
-                  ? "bg-[#F9F5FF] text-[#7F56D9] font-medium"
-                  : "text-[#3d3d3a] hover:bg-gray-100"
-              }`}
+                ${
+                  activeItem === "Settings"
+                    ? "bg-[#F9F5FF] text-[#7F56D9] font-medium"
+                    : "text-[#3d3d3a] hover:bg-gray-100"
+                }`}
               title={isCollapsed ? "Settings" : undefined}
             >
               {activeItem === "Settings" && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#7F56D9] rounded-l-md"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#7F56D9] rounded-l-md" />
               )}
               <Settings
                 className={`h-5 w-5 flex-shrink-0 ${
@@ -209,7 +241,6 @@ const SideBar: React.FC<SideBarProps> = ({
           </nav>
         </div>
 
-        {/* Footer */}
         <div className="space-y-2 border-t border-gray-200 pt-4">
           <div
             className={`flex items-center justify-between p-2 ${
@@ -232,29 +263,25 @@ const SideBar: React.FC<SideBarProps> = ({
               )}
             </div>
 
-            {/* Dropdown Button with Chevron Icon */}
             <div className="relative">
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown visibility
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="p-2 text-[#3D3D3A]"
-                aria-label="User Options"
               >
-                {/* Chevron Icon */}
                 <ChevronDown className="h-4 w-4 text-[#3D3D3A] ml-2" />
               </button>
 
-              {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute bottom-full right-0 mb-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   <ul>
                     <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
-                      <span>Profile</span>
+                      Profile
                     </li>
                     <li
                       className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout} // Add logout function to handle the logout action
+                      onClick={handleLogout}
                     >
-                      <span>Logout</span>
+                      Logout
                     </li>
                   </ul>
                 </div>
@@ -264,7 +291,6 @@ const SideBar: React.FC<SideBarProps> = ({
         </div>
       </aside>
 
-      {/* Overlay for mobile when open */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black opacity-50 z-40 lg:hidden"
@@ -276,7 +302,6 @@ const SideBar: React.FC<SideBarProps> = ({
 };
 
 // ----------------- STATS DATA & CARD -----------------
-
 const statsData = [
   {
     title: "Total Users",
@@ -352,29 +377,21 @@ const StatCard: React.FC<{
 );
 
 // ----------------- HEADER COMPONENTS -----------------
-
 const DesktopHeader: React.FC<{
   user: string;
   role: string;
   toggleSidebar: (shouldOpen?: boolean) => void;
   toggleCollapse: () => void;
   isCollapsed: boolean;
-}> = ({ user, role, toggleSidebar, toggleCollapse, isCollapsed }) => (
+}> = ({ user, role }) => (
   <header
     className="hidden lg:flex justify-between items-center w-full p-4 bg-white z-20 sticky top-0"
-    style={{ borderBottom: "1.2px solid rgba(0, 0, 0, 0.1)" }}
+    style={{ borderBottom: "1.2px solid rgba(0,0,0,0.1)" }}
   >
-    {/* left side: keep empty or logo placeholder */}
     <div />
-
-    {/* center / right group */}
     <div className="flex items-center space-x-4 relative lg:right-5">
       <div className="relative cursor-pointer hover:opacity-90 mr-4">
-        <div
-          className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 
-          bg-[#7F56D9] text-white text-xs p-0 font-semibold rounded-full 
-          h-5 w-5 flex items-center justify-center border-2 border-white"
-        >
+        <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-[#7F56D9] text-white text-xs p-0 font-semibold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
           3
         </div>
         <div className="h-6 w-6 relative flex-shrink-0">
@@ -386,7 +403,6 @@ const DesktopHeader: React.FC<{
           />
         </div>
       </div>
-
       <div className="flex items-center cursor-pointer">
         <div className="h-8 w-8 rounded-full relative mr-2 flex-shrink-0">
           <Image
@@ -405,8 +421,6 @@ const DesktopHeader: React.FC<{
           </p>
         </div>
       </div>
-
-      {/* small rectangle button on the right (replicates provided image) */}
     </div>
   </header>
 );
@@ -429,7 +443,6 @@ const MobileHeader: React.FC<Pick<SideBarProps, "toggleSidebar">> = ({
         />
       </div>
     </button>
-
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
       <span
         className={`${poppins.variable} italic text-xl font-semibold text-[#3d3d3a]`}
@@ -441,7 +454,6 @@ const MobileHeader: React.FC<Pick<SideBarProps, "toggleSidebar">> = ({
 );
 
 // ----------------- DASHBOARD VIEW -----------------
-
 const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
   let contentToRender;
 
@@ -467,6 +479,15 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
 
         <Graph />
         <div className="h-48" />
+
+        {/* Textarea Section */}
+        <div className="mt-8">
+          <TextArea
+            label="Your Notes"
+            placeholder="Write something here..."
+            onChange={(val) => console.log("Textarea value:", val)}
+          />
+        </div>
       </div>
     );
   } else if (activeItem === "Knowledge") {
@@ -487,21 +508,17 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
   return <div className="flex-1">{contentToRender}</div>;
 };
 
-// ----------------- MAIN PAGE LAYOUT -----------------
-
+// ----------------- MAIN PAGE -----------------
 export default function PageLayout() {
   const [activeItem, setActiveItem] = useState<string>("Overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
-  const toggleSidebar = (shouldOpen?: boolean): void => {
+  const toggleSidebar = (shouldOpen?: boolean) => {
     if (typeof shouldOpen === "boolean") setIsSidebarOpen(shouldOpen);
     else setIsSidebarOpen((prev) => !prev);
   };
-
-  const toggleCollapse = (): void => {
-    setIsCollapsed((prev) => !prev);
-  };
+  const toggleCollapse = () => setIsCollapsed((prev) => !prev);
 
   return (
     <div className="flex h-screen bg-[#F8F9FA] overflow-hidden">
@@ -526,7 +543,6 @@ export default function PageLayout() {
           isCollapsed={isCollapsed}
         />
         <MobileHeader toggleSidebar={toggleSidebar} />
-
         <div className="flex-1 overflow-y-auto">
           <DashboardView activeItem={activeItem} />
         </div>

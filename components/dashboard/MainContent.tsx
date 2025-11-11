@@ -26,6 +26,9 @@ export const inter = Inter({
   variable: "--font-inter",
 });
 
+// ... (Other interfaces and components remain the same: SlashCommandPopup, FileIconComponent, ChatMessage, ChatContentDisplay)
+// ChatContentDisplay is kept separate for existing chat functionality
+
 interface SlashCommandPopupProps {
   command: string;
   position: string;
@@ -38,6 +41,7 @@ interface FileIconComponentProps {
 interface ChatMessageProps {
   sender: "AI" | "Human" | string;
   text: string;
+  imageSrc?: string | ArrayBuffer | null;
 }
 
 interface ChatContentDisplayProps {
@@ -50,6 +54,8 @@ interface MainContentProps {
   contentMap?: any;
   setActiveItem: (item: string) => void;
 }
+
+// --- Utility Components (Kept for completeness) ---
 
 const KnowledgeIconComponent = () => (
   <span className="mr-3 rounded-full flex items-center justify-center">
@@ -116,7 +122,7 @@ const SlashCommandPopup = ({ command, position }: SlashCommandPopupProps) => {
   );
 };
 
-const ChatMessage = ({ sender, text }: ChatMessageProps) => {
+const ChatMessage = ({ sender, text, imageSrc }: ChatMessageProps) => {
   const isAI = sender === "AI";
 
   const aiMessageClasses = " text-[#4B4B4B] ";
@@ -136,6 +142,22 @@ const ChatMessage = ({ sender, text }: ChatMessageProps) => {
         }`}
       >
         <div>
+          {/* Display Image if present */}
+          {imageSrc && (
+            <div
+              className={`relative ${
+                isAI ? "mb-2 ml-11" : "mb-2"
+              } w-32 h-32 rounded-md overflow-hidden`}
+            >
+              <Image
+                src={imageSrc as string}
+                alt="Uploaded file preview"
+                fill
+                className="object-cover rounded-md"
+              />
+            </div>
+          )}
+
           <p
             className={`${inter.className} text-[16px] ${
               isAI ? "pl-11 pt-1 pb-1" : ""
@@ -184,6 +206,10 @@ const ChatMessage = ({ sender, text }: ChatMessageProps) => {
   );
 };
 
+// =======================================================
+// 1. ChatContentDisplay Component (For existing/recent chats)
+//    - Logic: Manages message history and sends replies within this view.
+// =======================================================
 const ChatContentDisplay = ({
   title,
   placeholder,
@@ -197,6 +223,7 @@ const ChatContentDisplay = ({
 
   const [popupPosition, setPopupPosition] = useState("bottom-full mb-3");
 
+  // Default messages for an ongoing chat
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -247,6 +274,7 @@ const ChatContentDisplay = ({
     }
   };
 
+  // Functionality 1: Send replies in an ongoing chat
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
 
@@ -263,16 +291,18 @@ const ChatContentDisplay = ({
       textareaRef.current.style.height = "24px";
     }
 
+    // Simulate AI reply for ongoing chat
     setTimeout(() => {
       const aiReply = {
         id: messages.length + 2,
         sender: "AI",
-        text: "Thank you for the input. I will process your request now. For core integration, the API URL, Authentication type, and Tool Description are essential.",
+        text: "This is a follow-up reply for the existing chat. The API URL, Authentication type, and Tool Description are confirmed.",
       };
       setMessages((prevMessages) => [...prevMessages, aiReply]);
     }, 1000);
   };
 
+  // ... (Rest of ChatContentDisplay component rendering)
   return (
     <div className="flex flex-col h-full min-h-[calc(100vh-4rem)] bg-white lg:bg-[#F5F5F5]">
       <div className="p-4 lg:p-6">
@@ -365,22 +395,33 @@ const ChatContentDisplay = ({
   );
 };
 
+// =======================================================
+// 2. MainContent Component (Focus on New Chat Logic)
+//    - Logic: Manages New Chat state, displays messages locally, and hides 'Hello Boni'.
+// =======================================================
 const MainContent = ({
   activeItem = "Chats",
   contentMap,
   setActiveItem,
 }: MainContentProps) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const newChatBodyRef = useRef<HTMLDivElement | null>(null); // Ref for New Chat scroll
 
   const chatPlaceholder = "How can I help you today?";
   const [uploadedImage, setUploadedImage] = useState<
     string | ArrayBuffer | null
-  >(null); // Type added for uploadedImage
+  >(null);
   const [newChatInputValue, setNewChatInputValue] = useState("");
   const [newChatShowSlashCommand, setNewChatShowSlashCommand] = useState(false);
   const [newChatSlashCommandValue, setNewChatSlashCommandValue] = useState("");
   const [newChatPopupPosition, setNewChatPopupPosition] =
     useState("bottom-full mb-3");
+
+  // --- New State for New Chat's local message history ---
+  const [newChatMessages, setNewChatMessages] = useState<ChatMessageProps[]>(
+    []
+  );
+  // -----------------------------------------------------
 
   const isRecentChatView = activeItem.startsWith(
     "Custom Tool Integration UI Fields - Recent"
@@ -388,11 +429,105 @@ const MainContent = ({
   const isNewChatView = activeItem === "New Chat";
   const isChatListView = activeItem === "Chats";
   const isLibraryView = activeItem === "Library";
-  // FIX: isSettingsView is not defined in the original code, but used in the conditional rendering.
   const isSettingsView = activeItem === "Settings";
 
   const chatTitle = "Custom Tool Integration UI Fields";
 
+  // New Chat: Scroll to bottom when messages update
+  useEffect(() => {
+    if (newChatBodyRef.current) {
+      newChatBodyRef.current.scrollTop = newChatBodyRef.current.scrollHeight;
+    }
+  }, [newChatMessages]);
+
+  // --- NEW CHAT Functionality (Separate and independent) ---
+
+  // Functionality 2: New Chat Input Change Handler
+  const handleNewChatInputChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    // ... (same as before)
+    const value = event.target.value;
+    setNewChatInputValue(value);
+
+    const element = textareaRef.current;
+    if (element) {
+      element.style.height = "auto";
+      element.style.height = element.scrollHeight + "px";
+
+      if (value.startsWith("/")) {
+        setNewChatShowSlashCommand(true);
+        setNewChatSlashCommandValue(value.substring(1));
+
+        const rect = element.getBoundingClientRect();
+        if (rect.top > window.innerHeight * 0.5) {
+          setNewChatPopupPosition("bottom-full mb-3");
+        } else {
+          setNewChatPopupPosition("top-full mt-3");
+        }
+      } else {
+        setNewChatShowSlashCommand(false);
+        setNewChatSlashCommandValue("");
+        setNewChatPopupPosition("bottom-full mb-3");
+      }
+    }
+  };
+
+  // Functionality 2: New Chat File Upload Handler
+  const handleNewChatFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // ... (same as before)
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Functionality 2: New Chat Send Message Handler (Updated to add message and simulate reply)
+  const handleNewChatMessageSend = () => {
+    if (newChatInputValue.trim() === "" && uploadedImage === null) return;
+
+    const messageToSend =
+      newChatInputValue.trim() || "(Sent an image without text)";
+    const newId = newChatMessages.length + 1;
+
+    // 1. Add Human Message
+    const humanMessage = {
+      id: newId,
+      sender: "Human",
+      text: messageToSend,
+      imageSrc: uploadedImage,
+    };
+
+    setNewChatMessages((prevMessages) => [...prevMessages, humanMessage]);
+
+    // 2. Simulate AI Reply
+    setTimeout(() => {
+      const aiReply = {
+        id: newId + 1,
+        sender: "AI",
+        text: `Thank you for your query: "${messageToSend.substring(
+          0,
+          40
+        )}...". I am processing this new chat request now.`,
+      };
+      setNewChatMessages((prevMessages) => [...prevMessages, aiReply]);
+    }, 1000); // 1 second delay for AI reply
+
+    // 3. Clear input fields
+    setNewChatInputValue("");
+    setUploadedImage(null);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "24px";
+    }
+
+    // View transition will NOT happen as requested.
+  };
+
+  // --- Global Styles ---
   const globalStyles = (
     <style jsx global>{`
       .custom-textarea-style {
@@ -419,6 +554,8 @@ const MainContent = ({
     `}</style>
   );
 
+  // --- Rendering Logic ---
+
   if (isChatListView) {
     return (
       <main className="flex-1 min-h-screen bg-white lg:bg-[#F5F5F5]">
@@ -438,6 +575,7 @@ const MainContent = ({
   }
 
   if (isRecentChatView) {
+    // --- Uses Functionality 1: ChatContentDisplay ---
     return (
       <main className="flex-1 min-h-screen bg-gray-100">
         {globalStyles}
@@ -447,44 +585,53 @@ const MainContent = ({
   }
 
   if (isNewChatView) {
-    const handleInputChange = (
-      event: React.ChangeEvent<HTMLTextAreaElement>
-    ) => {
-      const value = event.target.value;
-      setNewChatInputValue(value);
-
-      const element = textareaRef.current;
-      if (element) {
-        element.style.height = "auto";
-        element.style.height = element.scrollHeight + "px";
-
-        if (value.startsWith("/")) {
-          setNewChatShowSlashCommand(true);
-          setNewChatSlashCommandValue(value.substring(1));
-
-          const rect = element.getBoundingClientRect();
-          if (rect.top > window.innerHeight * 0.5) {
-            setNewChatPopupPosition("bottom-full mb-3");
-          } else {
-            setNewChatPopupPosition("top-full mt-3");
-          }
-        } else {
-          setNewChatShowSlashCommand(false);
-          setNewChatSlashCommandValue("");
-          setNewChatPopupPosition("bottom-full mb-3");
-        }
-      }
-    };
+    // --- Uses Functionality 2: New Chat Logic ---
+    // Calculate if we should show the 'Hello Boni' screen or the chat history
+    const showChatHistory = newChatMessages.length > 0;
 
     return (
       <main className="flex-1 min-h-screen bg-[#F5F5F5]">
         {globalStyles}
-        <div className="flex flex-col items-center bg-[#F5F5F5] justify-center h-full min-h-[calc(100vh-4rem)]">
-          <h1 className="font-sans text-[48px] font-medium text-[#727272] mb-8">
-            Hello Boni
-          </h1>
-          <div className="p-4 lg:p-8 flex justify-center w-full z-10">
-            <div className="w-full lg:w-1/2 max-w-2xl bg-white p-4 rounded-3xl shadow-[0px_4px_20px_rgba(0,0,0,0.04),_0px_0px_0px_0.5px_rgba(31,30,29,0.15)] flex-col items-end justify-between">
+        <div
+          ref={newChatBodyRef}
+          className={`flex flex-col items-center bg-[#F5F5F5] h-full min-h-[calc(100vh-4rem)] ${
+            showChatHistory
+              ? "justify-start overflow-y-auto pt-8 pb-40"
+              : "justify-center"
+          }`}
+        >
+          {/* 1. 'Hello Boni' screen hides after the first message */}
+          {!showChatHistory && (
+            <h1 className="font-sans text-[48px] font-medium text-[#727272] mb-8">
+              Hello Boni
+            </h1>
+          )}
+
+          {/* 2. Chat History Area for New Chat */}
+          {showChatHistory && (
+            <div className="w-full max-w-2xl mx-auto flex flex-col space-y-4 px-4 lg:px-0">
+              {newChatMessages.map((message, index) => (
+                <ChatMessage
+                  key={index}
+                  sender={message.sender}
+                  text={message.text}
+                  imageSrc={message.imageSrc}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* 3. Input Area (Fixed at bottom) */}
+          <div
+            className={`p-4 lg:p-8 flex justify-center w-full z-10 ${
+              showChatHistory ? "fixed bottom-0 left-0 right-0" : "relative"
+            }`}
+          >
+            <div
+              className={`bg-white p-4 ${
+                showChatHistory ? "lg:ml-60" : ""
+              } rounded-3xl shadow-[0px_4px_20px_rgba(0,0,0,0.04),_0px_0px_0px_0.5px_rgba(31,30,29,0.15)] flex-col items-end justify-between w-full max-w-2xl lg:w-1/2`}
+            >
               <div className="w-full flex relative">
                 {newChatShowSlashCommand && (
                   <SlashCommandPopup
@@ -494,9 +641,9 @@ const MainContent = ({
                 )}
 
                 <div className="flex-grow mx-2 overflow-hidden">
+                  {/* Image Preview */}
                   {uploadedImage && (
                     <div className="relative w-16 h-16 mb-2 rounded-md overflow-hidden">
-                      {/* uploadedImage is used here, so its type should be compatible with src */}
                       <Image
                         src={uploadedImage as string}
                         alt="Preview"
@@ -506,6 +653,7 @@ const MainContent = ({
                       <button
                         onClick={() => setUploadedImage(null)}
                         className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-gray-100"
+                        aria-label="Remove uploaded image"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -524,10 +672,17 @@ const MainContent = ({
                       </button>
                     </div>
                   )}
+                  {/* New Chat Textarea */}
                   <textarea
                     ref={textareaRef}
                     placeholder="How can I help you today?"
-                    onChange={handleInputChange}
+                    onChange={handleNewChatInputChange}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleNewChatMessageSend();
+                      }
+                    }}
                     value={newChatInputValue}
                     className="custom-textarea-style bg-[#FFFFFF] text-[#727272] w-full resize-none outline-none placeholder-gray-500"
                   />
@@ -541,17 +696,7 @@ const MainContent = ({
                     type="file"
                     accept="image/*"
                     id="fileUpload"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      // Type added for e
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setUploadedImage(reader.result);
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
+                    onChange={handleNewChatFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                   <button
@@ -568,7 +713,9 @@ const MainContent = ({
                   </button>
                 </div>
 
+                {/* Send Message Button */}
                 <button
+                  onClick={handleNewChatMessageSend}
                   className="bg-[#7F56D9] text-white p-2 rounded-full hover:bg-indigo-700 transition-colors flex-shrink-0"
                   aria-label="Send message"
                 >

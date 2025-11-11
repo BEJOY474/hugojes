@@ -14,6 +14,9 @@ interface InputFieldProps {
   description?: string;
   className?: string;
 }
+const inputClass =
+  `w-full p-2.5 text-[16px] text-gray-900 font-inter bg-white border border-gray-300 ` +
+  `rounded-lg focus:outline-none`;
 
 const InputField: React.FC<InputFieldProps> = ({
   label,
@@ -46,61 +49,55 @@ const AccountDetails: React.FC = () => (
 
     {/* Change Password Section */}
     <InputField label="Change Password">
-      <div className="space-y-4 lg:right-[200px] lg:mr-72 lg:relative">
+      <div className="space-y-4 lg:mr-72 lg:relative">
         {/* Current Password */}
         <div>
-          <label
-            className={`${inter.className} block text-[14px] font-medium text-[#414651] mb-1`}
-          >
+          <label className="block text-[14px] font-medium text-[#414651] mb-1">
             Current password
           </label>
           <input
             type="password"
             placeholder="**********"
-            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[#181d27] focus:outline-none text-[16px] p-2.5`}
+            className={inputClass}
           />
         </div>
 
         {/* New Password */}
         <div>
-          <label
-            className={`${inter.className} block text-[14px] font-medium text-[#414651] mb-1`}
-          >
+          <label className="block text-[14px] font-medium text-[#414651] mb-1">
             New password
           </label>
           <input
             type="password"
             placeholder="**********"
-            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] focus:outline-none text-[16px] p-2.5`}
+            className={inputClass}
           />
         </div>
 
         {/* Retype New Password */}
         <div>
-          <label
-            className={`${inter.className} block text-[14px] font-medium text-[#414651] mb-1`}
-          >
+          <label className="block text-[14px] font-medium text-[#414651] mb-1">
             Retype new password
           </label>
           <input
             type="password"
             placeholder="**********"
-            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] focus:outline-none text-[16px] p-2.5`}
+            className={inputClass}
           />
         </div>
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end space-x-3 lg:right-[200px] lg:mr-72 lg:relative mt-6">
+      <div className="flex justify-end space-x-3 lg:mr-72 lg:relative mt-6">
         <button
           type="button"
-          className={`px-4 py-2 text-[14px] font-semibold text-[#414651] bg-white border border-[#d5d7da] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] hover:bg-gray-50 focus:outline-none`}
+          className="px-4 py-2 text-[14px] font-semibold text-[#414651] bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none"
         >
           Cancel
         </button>
         <button
           type="button"
-          className={`px-4 py-2 text-[14px] font-semibold text-white bg-[#7f56d9] border border-[#7f56d9] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] hover:bg-indigo-700 focus:outline-none`}
+          className="px-4 py-2 text-[14px] font-semibold text-white bg-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none"
         >
           Save
         </button>
@@ -113,7 +110,7 @@ const AccountDetails: React.FC = () => (
     <InputField label="Data and Storage" className="border-b-0">
       <button
         type="button"
-        className={`px-4 py-2 text-[14px] font-semibold text-[#b42318] bg-[#ffffff] border border-[#fecd59] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] hover:bg-[#fbd3d2] focus:outline-none`}
+        className="px-4 py-2 text-[14px] font-semibold text-red-600 bg-white border border-yellow-400 rounded-lg hover:bg-red-50 focus:outline-none"
       >
         Clear All Data
       </button>
@@ -125,7 +122,7 @@ const AccountDetails: React.FC = () => (
     <InputField label="Delete Account" className="border-b-0">
       <button
         type="button"
-        className={`px-4 py-2 text-[14px] font-semibold text-white bg-[#d92d20] border border-[#d92d20] rounded-[8px] shadow-[0px_1px_2px_rgba(10,13,18,0.05)] hover:bg-[#d92d20] focus:outline-none`}
+        className="px-4 py-2 text-[14px] font-semibold text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 focus:outline-none"
       >
         Delete Account
       </button>
