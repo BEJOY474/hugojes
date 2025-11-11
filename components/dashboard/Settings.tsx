@@ -153,6 +153,7 @@ export const inter = Inter({
 // 🛠️ TypeScript Types Added for Tab Navigation
 // --------------------------------------------------------------------------
 type TabName = "My details" | "Account" | "Billing";
+type RoleType = "Student" | "Professional" | ""; // ADDED RoleType
 
 interface SettingsTabsProps {
   activeTab: TabName;
@@ -365,7 +366,7 @@ const PhotoUpload = () => {
 };
 
 // --------------------------------------------------------------------------
-// 🛠️ NEW: TypeScript Types Added for MyDetails Component
+// 🛠️ UPDATED: TypeScript Types for MyDetails Component
 // --------------------------------------------------------------------------
 
 interface NameState {
@@ -378,6 +379,12 @@ interface MyDetailsProps {
   setName: React.Dispatch<React.SetStateAction<NameState>>;
   email: string;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
+  role: RoleType; // ADDED
+  setRole: React.Dispatch<React.SetStateAction<RoleType>>; // ADDED
+  affiliation: string; // ADDED
+  setAffiliation: React.Dispatch<React.SetStateAction<string>>; // ADDED
+  position: string; // ADDED
+  setPosition: React.Dispatch<React.SetStateAction<string>>; // ADDED
   country: string;
   handleCountryChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   timezone: string;
@@ -385,12 +392,18 @@ interface MyDetailsProps {
   getCurrentFlag: () => string;
 }
 
-// --- START: My Details Component (Updated with MyDetailsProps) ---
+// --- START: My Details Component (Updated with MyDetailsProps and new fields) ---
 const MyDetails = ({
   name,
   setName,
   email,
   setEmail,
+  role, // ADDED
+  setRole, // ADDED
+  affiliation, // ADDED
+  setAffiliation, // ADDED
+  position, // ADDED
+  setPosition, // ADDED
   country,
   handleCountryChange,
   timezone,
@@ -434,6 +447,7 @@ const MyDetails = ({
         <div className="flex space-x-3">
           <input
             type="text"
+            placeholder="First name" // Added placeholder
             value={name.first}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setName({ ...name, first: e.target.value })
@@ -442,6 +456,7 @@ const MyDetails = ({
           />
           <input
             type="text"
+            placeholder="Last name" // Added placeholder
             value={name.last}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setName({ ...name, last: e.target.value })
@@ -475,6 +490,61 @@ const MyDetails = ({
         </div>
       </InputField>
       <hr className=" border-gray-200" />
+
+      {/* Student or Professional (Dropdown) - ADDED */}
+      <InputField label="Student or Professional">
+        <div className="relative">
+          <select
+            value={role}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setRole(e.target.value as RoleType);
+              setAffiliation(""); // Clear affiliation when role changes
+            }}
+            className={`${inter.className} block w-full appearance-none bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5 pr-10`}
+          >
+            <option value="" disabled>
+              Select an option
+            </option>
+            <option value="Student">Student</option>
+            <option value="Professional">Professional</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        </div>
+      </InputField>
+
+      {/* Conditional Affiliation Field - ADDED */}
+      {role && (
+        <InputField
+          label={role === "Student" ? "University Name" : "Company Name"}
+        >
+          <input
+            type="text"
+            placeholder={
+              role === "Student" ? "e.g., Stanford University" : "e.g., Google"
+            }
+            value={affiliation}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setAffiliation(e.target.value)
+            }
+            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
+          />
+        </InputField>
+      )}
+
+      {/* Position Field - ADDED */}
+      {role === "Professional" && (
+        <InputField label="Position">
+          <input
+            type="text"
+            placeholder="e.g., Software Engineer"
+            value={position}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPosition(e.target.value)
+            }
+            className={`${inter.className} block w-full bg-white border border-[#d5d7da] rounded-[8] focus:outline-none shadow-[0px_1px_2px_rgba(10,13,18,0.05)] text-[16px] p-2.5`}
+          />
+        </InputField>
+      )}
 
       {/* Your photo */}
       <InputField
@@ -554,8 +624,15 @@ const SettingsPage = () => {
   const defaultCountry = countryData[0];
 
   // Mock state for form inputs (used for My details tab)
-  const [name, setName] = useState<NameState>({ first: "Oliva", last: "Rhye" }); // Added NameState type
+  const [name, setName] = useState<NameState>({ first: "Oliva", last: "Rhye" });
   const [email, setEmail] = useState("olivia@untitledui.com");
+
+  // NEW STATE VARIABLES - ADDED
+  const [role, setRole] = useState<RoleType>(""); // Student or Professional
+  const [affiliation, setAffiliation] = useState(""); // University Name or Company Name
+  const [position, setPosition] = useState(""); // Position
+  // END NEW STATE VARIABLES
+
   const [country, setCountry] = useState(defaultCountry.name);
   const [timezone, setTimezone] = useState(defaultCountry.timezone);
 
@@ -595,6 +672,12 @@ const SettingsPage = () => {
             setName={setName}
             email={email}
             setEmail={setEmail}
+            role={role} // ADDED
+            setRole={setRole} // ADDED
+            affiliation={affiliation} // ADDED
+            setAffiliation={setAffiliation} // ADDED
+            position={position} // ADDED
+            setPosition={setPosition} // ADDED
             country={country}
             handleCountryChange={handleCountryChange}
             timezone={timezone}

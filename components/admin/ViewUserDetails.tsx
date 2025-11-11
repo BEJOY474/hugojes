@@ -118,24 +118,27 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ user, onBack }) => {
                 </div>
               </div>
             </div>
-
             {/* Contact Info */}
-            <div className="p-6 pb-0">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Responsive: Reduced padding on small screens (p-4) and set the container's default to one column */}
+            <div className="p-4 md:p-6 pb-0">
+              {/* Change: grid-cols-1 by default, md:grid-cols-2 on medium screens and up */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Email */}
                 <div className="bg-gray-50 p-3 rounded-lg flex flex-col justify-center">
                   <div className="flex items-center space-x-2">
+                    {/* Assumes Mail is imported from 'lucide-react' */}
                     <Mail className="h-5 w-5 text-[#845ef2] opacity-80" />
                     <p className="text-sm text-gray-500">Email</p>
                   </div>
-                  <p className="text-base font-medium text-[#101828] ml-7">
+                  <p className="text-base font-medium text-[#101828] ml-7 truncate">
                     {user.email}
                   </p>
                 </div>
 
-                {/* Registered */}
+                {/* Registered Date */}
                 <div className="bg-gray-50 p-3 rounded-lg flex flex-col justify-center">
                   <div className="flex items-center space-x-2">
+                    {/* Assumes Calendar is imported from 'lucide-react' */}
                     <Calendar className="h-5 w-5 text-[#845ef2] opacity-80" />
                     <p className="text-sm text-gray-500">Registered</p>
                   </div>
@@ -145,8 +148,10 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ user, onBack }) => {
                 </div>
 
                 {/* Phone */}
+                {/* By making the layout grid-cols-1, this item will automatically flow below the first two */}
                 <div className="bg-gray-50 p-3 rounded-lg flex flex-col justify-center">
                   <div className="flex items-center space-x-2">
+                    {/* Custom SVG for Phone/Shield (Note: A proper phone icon would be better if available from lucide-react) */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -159,6 +164,7 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ user, onBack }) => {
                       strokeLinejoin="round"
                       className="h-5 w-5 text-[#845ef2] opacity-80"
                     >
+                      {/* Note: This SVG path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" renders a SHIELD, not a phone. I kept the original SVG code but noted this. */}
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                     <p className="text-sm text-gray-500">Phone</p>
@@ -167,6 +173,9 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ user, onBack }) => {
                     {user.phone}
                   </p>
                 </div>
+
+                {/* Optional: If you had a fourth item (e.g., Address/Location) */}
+                {/* <div className="bg-gray-50 p-3 rounded-lg flex flex-col justify-center">...</div> */}
               </div>
             </div>
 

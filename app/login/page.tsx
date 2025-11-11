@@ -127,6 +127,12 @@ const Login: React.FC = () => {
 
         {/* Google Sign In */}
         <Button2 src={googleIcon} text="Sign in with Google" />
+        <Link
+          href="/admin"
+          className={`${inter.className} text-[14px] text-[#6941c6] font-semibold hover:underline`}
+        >
+          Go to admin page. **For testing purpose**
+        </Link>
       </div>
     </div>
   );

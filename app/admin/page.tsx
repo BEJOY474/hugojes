@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Settings, X, Search, Eye, Edit, Trash2, Plus } from "lucide-react"; // Added lucide icons
+import {
+  Settings,
+  X,
+  ChevronDown,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+} from "lucide-react"; // Added lucide icons
 import { Inter, Poppins } from "next/font/google";
 
 // --- Placeholder Imports for components you didn't provide ---
@@ -23,6 +32,7 @@ import growthIconBlue from "@/public/image/Admin/Icon (4).svg";
 import homeIcon from "@/public/image/Admin/home.svg";
 import userImage from "@/public/image/Admin/userIcon.jpg";
 import bellIcon from "@/public/image/Admin/bell.svg";
+import SettingsView from "@/components/admin/SettingsView";
 
 // --- Font Definitions ---
 export const inter = Inter({
@@ -72,7 +82,13 @@ const SideBar: React.FC<SideBarProps> = ({
   toggleSidebar,
   toggleCollapse,
 }) => {
-  // classes change when collapsed
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown
+
+  const handleLogout = () => {
+    console.log("Logged out");
+    setIsDropdownOpen(false); // Close dropdown after logout
+  };
+
   const baseWidthClass = isCollapsed ? "w-20" : "w-64";
   const itemPadding = isCollapsed ? "py-3 px-2" : "py-2 px-3";
 
@@ -124,7 +140,6 @@ const SideBar: React.FC<SideBarProps> = ({
                   <X className="h-6 w-6" />
                 </button>
               )}
-              {/* collapse toggle inside sidebar (small icon) */}
               <button
                 className="hidden lg:inline-flex items-center p-2 text-gray-600"
                 onClick={toggleCollapse}
@@ -162,17 +177,7 @@ const SideBar: React.FC<SideBarProps> = ({
                       }`}
                     />
                   )}
-                  <div className="h-5 w-5 relative flex-shrink-0 mr-3 flex items-center justify-center">
-                    <Image
-                      src={item.icon}
-                      alt={`${item.name} icon`}
-                      fill
-                      className={
-                        isActive ? "filter-none" : "filter grayscale opacity-70"
-                      }
-                      style={{ objectFit: "contain" }}
-                    />
-                  </div>
+                  <div className="h-5 w-5 relative flex-shrink-0 mr-3 flex items-center justify-center"></div>
                   {!isCollapsed && (
                     <span className="text-[16px]">{item.name}</span>
                   )}
@@ -223,6 +228,35 @@ const SideBar: React.FC<SideBarProps> = ({
                     {user}
                   </p>
                   <p className="text-[12px] text-gray-500 font-light">{plan}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Dropdown Button with Chevron Icon */}
+            <div className="relative">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown visibility
+                className="p-2 text-[#3D3D3A]"
+                aria-label="User Options"
+              >
+                {/* Chevron Icon */}
+                <ChevronDown className="h-4 w-4 text-[#3D3D3A] ml-2" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute bottom-full right-0 mb-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <ul>
+                    <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
+                      <span>Profile</span>
+                    </li>
+                    <li
+                      className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      onClick={handleLogout} // Add logout function to handle the logout action
+                    >
+                      <span>Logout</span>
+                    </li>
+                  </ul>
                 </div>
               )}
             </div>
@@ -438,8 +472,9 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
   } else if (activeItem === "Knowledge") {
     contentToRender = <KnowledgeView />;
   } else if (activeItem === "Users") {
-    // Renders the User Management screen
     contentToRender = <UserManagementView />;
+  } else if (activeItem === "Settings") {
+    contentToRender = <SettingsView />;
   } else {
     contentToRender = (
       <div className="p-8 text-xl text-gray-600">

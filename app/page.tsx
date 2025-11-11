@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <>
       {/* <CreateAccountPage /> */}
-      {/* <Dashboard /> */}
-      <Admin />
+      <Dashboard />
+      {/* <Admin /> */}
     </>
   );
 }

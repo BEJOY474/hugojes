@@ -14,9 +14,6 @@ import fileIcon from "@/public/image/dashboard/fileIcon.svg";
 import Svg from "@/components/dashboard/Svg"; // Assuming Svg component exists
 import menuIcon from "@/public/image/dashboard/menu-outline.svg";
 import MainContent from "@/components/dashboard/MainContent"; // Assuming MainContent exists
-// NOTE: For this to truly resolve the issue, the MainContentProps interface
-// MUST be correctly defined and exported in "@/components/dashboard/MainContent.tsx"
-// with the 'isSidebarCollapsed: boolean;' property.
 
 export const inter = Inter({
   subsets: ["latin"],
