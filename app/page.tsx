@@ -9,8 +9,8 @@ export default function Home() {
   return (
     <>
       {/* <CreateAccountPage /> */}
-      <Login />
-      {/* <Dashboard /> */}
+      {/* <Login /> */}
+      <Dashboard />
       {/* <Admin /> */}
     </>
   );
