@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Settings, X, ChevronDown, Bell } from "lucide-react";
+import { Settings, X, ChevronDown, Bell } from "lucide-react"; // Added Bell import for clarity, though it's likely a replacement for the Image bellIcon. Let's stick to the Image for consistency with the original code.
 import { Inter, Poppins } from "next/font/google";
 
 // Placeholder imports (ensure paths exist)
-// NOTE: Apnake ei path gulo thik korte hobe jodi apnar file structure alada hoy.
 import Graph from "@/components/admin/Graph";
 import KnowledgeView from "@/components/admin/Knowledge";
 import Svg from "@/components/dashboard/Svg";
@@ -25,7 +24,8 @@ import homeIcon from "@/public/image/Admin/home.svg";
 import userImage from "@/public/image/Admin/userIcon.jpg";
 import bellIcon from "@/public/image/Admin/bell.svg";
 
-import Link from "next/link"; // useRouter import kora nei, karon ei code-e byabohito hoyni
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 // Fonts
 export const inter = Inter({
@@ -371,7 +371,7 @@ const StatCard: React.FC<{
   </div>
 );
 
-// ----------------- NOTIFICATIONS PANEL COMPONENT (MODIFIED) -----------------
+// ----------------- NOTIFICATIONS PANEL COMPONENT -----------------
 interface NotificationPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -394,27 +394,14 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({
 
   return (
     <>
-      {/* Overlay */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-30 z-[60]"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-opacity-30 z-[60]" onClick={onClose} />
       )}
 
-      {/* Notification Panel (Conditional Sliding) */}
       <div
-        className={`fixed top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[70] 
+        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-2xl z-[70] 
         transform transition-transform duration-300 ease-in-out
-
-        /* Mobile (Default) - Slides from Right */
-        right-0
-        ${isOpen ? "translate-x-0" : "translate-x-full"}
-
-        /* Desktop (lg: override) - Slides from Left */
-        lg:left-0 lg:right-auto 
-        ${isOpen ? "lg:translate-x-0" : "lg:-translate-x-full"}
-        `}
+        ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-[#101828]">
@@ -543,13 +530,6 @@ const MobileHeader: React.FC<Pick<SideBarProps, "toggleSidebar">> = ({
 const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
   let contentToRender;
 
-  // Placeholder components
-  const PlaceholderView: React.FC<{ title: string }> = ({ title }) => (
-    <div className="p-8 text-xl text-gray-600 h-screen">
-      Content for <span className="font-semibold">{title}</span> goes here.
-    </div>
-  );
-
   if (activeItem === "Overview") {
     contentToRender = (
       <div className="p-4 lg:p-8 bg-[#F8F9FA]">
@@ -570,36 +550,19 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
           ))}
         </div>
 
-        {/* Assuming Graph is a component */}
-        <div className="bg-white p-6 rounded-[14px] border-2 border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Sales Trends</h2>
-          {/* Replace with actual Graph component if available */}
-          <div className="h-64 flex items-center justify-center text-gray-400 border border-dashed rounded-lg">
-            Placeholder for Graph Component
-          </div>
-          {/* <Graph /> */}
-        </div>
-        <div className="h-10" />
-
-        {/* Textarea Section */}
-        <div className="mt-8">
-          <TextArea
-            label="Your Notes"
-            placeholder="Write something here..."
-            onChange={(val) => console.log("Textarea value:", val)}
-          />
-        </div>
+        <Graph />
+        <div className="h-48" />
       </div>
     );
   } else if (activeItem === "Knowledge") {
-    contentToRender = <PlaceholderView title="Knowledge View" />; // Replaced with Placeholder
+    contentToRender = <KnowledgeView />;
   } else if (activeItem === "Users") {
-    contentToRender = <PlaceholderView title="User Management View" />; // Replaced with Placeholder
+    contentToRender = <UserManagementView />;
   } else if (activeItem === "Settings") {
-    contentToRender = <PlaceholderView title="Settings View" />; // Replaced with Placeholder
+    contentToRender = <SettingsView />;
   } else {
     contentToRender = (
-      <div className="p-8 text-xl text-gray-600 h-screen">
+      <div className="p-8 text-xl text-gray-600">
         Content for <span className="font-semibold">{activeItem}</span> goes
         here.
       </div>
@@ -614,9 +577,8 @@ export default function PageLayout() {
   const [activeItem, setActiveItem] = useState<string>("Overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  // Notifications state correctly handled with useState
   const [isNotificationsOpen, setIsNotificationsOpen] =
-    useState<boolean>(false);
+    useState<boolean>(false); // New state for notifications
 
   const toggleSidebar = (shouldOpen?: boolean) => {
     if (typeof shouldOpen === "boolean") setIsSidebarOpen(shouldOpen);
@@ -625,7 +587,7 @@ export default function PageLayout() {
 
   const toggleCollapse = () => setIsCollapsed((prev) => !prev);
 
-  // Handlers for notifications
+  // New handlers for notifications
   const toggleNotifications = () => {
     setIsNotificationsOpen((prev) => !prev);
   };
@@ -655,7 +617,7 @@ export default function PageLayout() {
           toggleSidebar={toggleSidebar}
           toggleCollapse={toggleCollapse}
           isCollapsed={isCollapsed}
-          toggleNotifications={toggleNotifications}
+          toggleNotifications={toggleNotifications} // Pass handler
         />
         <MobileHeader toggleSidebar={toggleSidebar} />
         <div className="flex-1 overflow-y-auto">
