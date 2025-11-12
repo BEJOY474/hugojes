@@ -1,11 +1,10 @@
-// components/Sidebar.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Settings, X, LogOut as LogOutIcon, Bell } from "lucide-react"; // Imported Bell icon
+import { Settings, X, LogOut as LogOutIcon, Bell } from "lucide-react";
 import { Inter, Poppins } from "next/font/google";
-import { useRouter } from "next/navigation"; // New import for navigation
+import { useRouter } from "next/navigation";
 import pIcon from "@/public/image/dashboard/pIcon.svg";
 import logOut from "@/public/image/dashboard/log-out.svg";
 import plusIcon from "@/public/image/dashboard/plusIcon.svg";
@@ -47,7 +46,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-// --- SideBar Prop Interface (Updated) ---
+// --- SideBar Prop Interface ---
 interface SideBarProps {
   activeItem: string;
   setActiveItem: (item: string) => void;
@@ -58,7 +57,7 @@ interface SideBarProps {
   isCollapsed: boolean;
   toggleCollapse: () => void;
   openLogoutModal: () => void;
-  // NEW PROP for handling notifications
+  // Prop for handling notifications
   handleNotificationsClick: () => void;
 }
 
@@ -69,27 +68,26 @@ const SideBar: React.FC<SideBarProps> = ({
   plan,
   isSidebarOpen,
   toggleSidebar,
-  isCollapsed,
-  toggleCollapse,
+  isCollapsed: isSidebarCollapsed,
+  toggleCollapse: toggleSidebarCollapse,
   openLogoutModal,
-  handleNotificationsClick, // Destructure new prop
+  handleNotificationsClick,
 }) => (
   <>
     {/* Sidebar */}
     <aside // --- COLLAPSIBLE WIDTH & TRANSITION ---
       className={`fixed top-0 left-0 h-screen p-4 flex flex-col justify-between z-50 
       transition-all duration-300 ease-in-out
-      ${isCollapsed ? "w-20" : "w-64"} 
+      ${isSidebarCollapsed ? "w-20" : "w-64"} 
       ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
       bg-white border-r border-gray-200
-      // FIX APPLIED: Changed 'lg:static' to 'lg:fixed' to keep the sidebar fixed.
       lg:translate-x-0 lg:fixed lg:h-screen
       `}
     >
       <div>
         <div // Logo/Title container class updated for alignment in collapsed state
           className={`flex items-center space-x-2 mb-8 ${
-            isCollapsed ? "justify-center" : "justify-between"
+            isSidebarCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           <div className="flex items-center">
@@ -107,7 +105,7 @@ const SideBar: React.FC<SideBarProps> = ({
                 poppins.variable
               } italic text-xl font-semibold ml-1 text-[#3d3d3a] 
               ${
-                isCollapsed ? "hidden" : "block"
+                isSidebarCollapsed ? "hidden" : "block"
               } transition-opacity duration-300`}
             >
               Petrobasin
@@ -125,50 +123,53 @@ const SideBar: React.FC<SideBarProps> = ({
 
           {/* Svg Toggle Button (desktop only) */}
           <button
-            onClick={toggleCollapse} // The collapse trigger
+            onClick={toggleSidebarCollapse} // The collapse trigger
             className={`hidden lg:block p-1 rounded-full text-[#3D3D3A] hover:bg-gray-100 transition-colors ${
-              isCollapsed ? "hidden" : "block"
+              isSidebarCollapsed ? "hidden" : "block"
             }`}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={
+              isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+            }
           >
             <Svg />
           </button>
         </div>
 
-        {/* --- NEW: Notification Icon for Desktop Sidebar (Collapsed/Uncollapsed) --- */}
+        {/* --- Notification Icon for Desktop Sidebar (Collapsed/Uncollapsed) --- */}
         <div
           className={`
-            ${isCollapsed ? "flex justify-center" : "flex justify-between"}
+            ${
+              isSidebarCollapsed
+                ? "flex justify-center"
+                : "flex justify-between"
+            }
             items-center mb-4 transition-all duration-300
-            ${isCollapsed ? "" : "border-b border-gray-200 pb-4"} 
+            ${isSidebarCollapsed ? "" : "border-b border-gray-200 pb-4"} 
             hidden lg:flex
           `}
         >
           {/* Notification Button - ALWAYS visible on desktop sidebar */}
           <button
             onClick={handleNotificationsClick}
-            className={`p-2 rounded-full text-[#3D3D3A] hover:bg-gray-100 transition-colors ${
-              isCollapsed ? "" : ""
-            }`}
+            className={`p-2 rounded-lg flex w-full text-[#3D3D3A] hover:bg-gray-100 transition-colors`}
             aria-label="View notifications"
           >
             <Bell className="h-6 w-6" />
+            <span
+              className={`${
+                inter.className
+              } text-[16px] text-[#3D3D3A] font-medium ${
+                isSidebarCollapsed ? "hidden" : "block"
+              } mr-auto ml-2`}
+            >
+              Notifications
+            </span>
           </button>
 
-          {/* Label for Notification - Hidden when collapsed */}
-          <span
-            className={`${
-              inter.className
-            } text-[16px] text-[#3D3D3A] font-medium ${
-              isCollapsed ? "hidden" : "block"
-            } mr-auto ml-2`}
-          >
-            Notifications
-          </span>
           {/* Placeholder/Space for alignment when uncollapsed */}
-          {!isCollapsed && <div className="w-8"></div>}
+          {!isSidebarCollapsed && <div className="w-8"></div>}
         </div>
-        {/* --- END NEW: Notification Icon for Desktop Sidebar --- */}
+        {/* --- END Notification Icon for Desktop Sidebar --- */}
 
         {/* Navigation */}
         <nav className={`${inter.className} text-[16px] space-y-1`}>
@@ -178,9 +179,9 @@ const SideBar: React.FC<SideBarProps> = ({
             onClick={() => {
               setActiveItem("New Chat");
               toggleSidebar(false);
-            }} // Adjusted layout for collapsed state
+            }}
             className={`flex items-center w-full ${
-              isCollapsed ? "justify-center" : "px-3"
+              isSidebarCollapsed ? "justify-center" : "px-3"
             } py-2 text-[16px] transition-colors duration-150 rounded-md
             ${
               activeItem === "New Chat"
@@ -191,7 +192,7 @@ const SideBar: React.FC<SideBarProps> = ({
           >
             <div
               className={`h-6 w-6 relative flex-shrink-0 bg-[#3D3D3A] text-white rounded-full ${
-                isCollapsed ? "p-0.5" : "p-0.5 mr-3"
+                isSidebarCollapsed ? "p-0.5" : "p-0.5 mr-3"
               }`}
             >
               <Image
@@ -204,7 +205,7 @@ const SideBar: React.FC<SideBarProps> = ({
             {/* Text hidden when collapsed */}
             <span
               className={`${
-                isCollapsed ? "hidden" : "block"
+                isSidebarCollapsed ? "hidden" : "block"
               } whitespace-nowrap`}
             >
               New Chat
@@ -218,9 +219,9 @@ const SideBar: React.FC<SideBarProps> = ({
               onClick={() => {
                 setActiveItem(item.name);
                 toggleSidebar(false);
-              }} // Adjusted layout for collapsed state
+              }}
               className={`flex items-center w-full ${
-                isCollapsed ? "justify-center" : "px-3"
+                isSidebarCollapsed ? "justify-center" : "px-3"
               } py-2 rounded-md text-[16px] transition-colors duration-150 ${
                 activeItem === item.name
                   ? "bg-[#F9F5FF] text-[#7F56D9]"
@@ -229,7 +230,7 @@ const SideBar: React.FC<SideBarProps> = ({
             >
               <div
                 className={`h-6 w-6 relative flex-shrink-0 ${
-                  isCollapsed ? "" : "mr-3"
+                  isSidebarCollapsed ? "" : "mr-3"
                 }`}
               >
                 <Image
@@ -242,7 +243,7 @@ const SideBar: React.FC<SideBarProps> = ({
               {/* Text hidden when collapsed */}
               <span
                 className={`${
-                  isCollapsed ? "hidden" : "block"
+                  isSidebarCollapsed ? "hidden" : "block"
                 } whitespace-nowrap`}
               >
                 {item.name}
@@ -255,14 +256,14 @@ const SideBar: React.FC<SideBarProps> = ({
             {/* Title hidden when collapsed */}
             <p
               className={`${inter.className} text-[12px] text-[#6d6d6d] mb-2 ${
-                isCollapsed ? "hidden" : "block"
+                isSidebarCollapsed ? "hidden" : "block"
               }`}
             >
               Recent
             </p>
 
             {/* Recent Items are hidden when collapsed */}
-            <div className={isCollapsed ? "hidden" : "block"}>
+            <div className={isSidebarCollapsed ? "hidden" : "block"}>
               {["Recent 1", "Recent 2"].map((suffix) => (
                 <button
                   key={suffix}
@@ -292,18 +293,18 @@ const SideBar: React.FC<SideBarProps> = ({
         {/* Settings Button */}
         <div
           className={`flex items-center cursor-pointer rounded-lg transition-colors duration-150 p-2 
-            ${isCollapsed ? "justify-center" : "justify-start p-2"} 
+            ${isSidebarCollapsed ? "justify-center" : "justify-start p-2"} 
             text-gray-600 hover:text-indigo-700`}
           onClick={() => {
             setActiveItem("Settings");
             toggleSidebar(false);
           }}
         >
-          <Settings className={`h-5 w-5 ${isCollapsed ? "" : "mr-3"}`} />
+          <Settings className={`h-5 w-5 ${isSidebarCollapsed ? "" : "mr-3"}`} />
           {/* Text hidden when collapsed */}
           <span
             className={`${inter.className} text-[16px] text-[#3D3D3A] ${
-              isCollapsed ? "hidden" : "block"
+              isSidebarCollapsed ? "hidden" : "block"
             }`}
           >
             Settings
@@ -313,7 +314,7 @@ const SideBar: React.FC<SideBarProps> = ({
         {/* User Info & Logout */}
         <div
           className={`flex items-center justify-between p-2 border-t border-gray-200
-            ${isCollapsed ? "flex-col p-2" : "flex-row"}
+            ${isSidebarCollapsed ? "flex-col p-2" : "flex-row"}
             `}
         >
           <div className="flex items-center">
@@ -321,7 +322,7 @@ const SideBar: React.FC<SideBarProps> = ({
               {user.charAt(0)}
             </div>
             {/* User details hidden when collapsed */}
-            <div className={isCollapsed ? "hidden" : "block"}>
+            <div className={isSidebarCollapsed ? "hidden" : "block"}>
               <p className="text-[16px] font-medium text-[#3D3D3A]">{user}</p>
               <p className="text-[12px] text-[#3D3D3A] font-light">{plan}</p>
             </div>
@@ -355,7 +356,7 @@ const SideBar: React.FC<SideBarProps> = ({
   </>
 );
 
-// --- LogoutModal Component (NEW) ---
+// --- LogoutModal Component (No change) ---
 interface LogoutModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -367,7 +368,6 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleLogout = () => {
-    // Perform any client-side cleanup (e.g., clear localStorage, state)
     console.log("Logging out and redirecting...");
     router.push("/login"); // Navigate to the /login route
     onClose(); // Close the modal
@@ -404,10 +404,10 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-// --- MobileHeader Component (UPDATED) ---
+// --- MobileHeader Component (No change) ---
 interface MobileHeaderProps {
   toggleSidebar: (shouldOpen?: boolean) => void;
-  // NEW PROP
+  // Prop for handling notifications
   handleNotificationsClick: () => void;
 }
 
@@ -447,7 +447,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
       </span>
     </div>
 
-    {/* --- NEW: Notification Icon for Mobile Header --- */}
+    {/* --- Notification Icon for Mobile Header --- */}
     <button
       onClick={handleNotificationsClick}
       className="p-2 text-[#3D3D3A] flex-shrink-0"
@@ -455,7 +455,6 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
     >
       <Bell className="h-6 w-6" />
     </button>
-    {/* --- END NEW: Notification Icon for Mobile Header --- */}
   </header>
 );
 
@@ -473,34 +472,125 @@ const contentMap = {
     "Details for the second recent custom tool integration.",
 };
 
-// --- PageLayout Component (The main application wrapper) (UPDATED) ---
+// --- NotificationsPanel Component (SLIDE-OVER PANEL with Animation) ---
+interface NotificationsPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NotificationsPanel: React.FC<NotificationsPanelProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  // State to handle the delay for the slide-out animation before unmounting
+  const [shouldRender, setShouldRender] = useState(isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Render immediately when opening
+      setShouldRender(true);
+    } else {
+      // Delay unmounting until after the CSS transition (300ms) completes
+      const timer = setTimeout(() => setShouldRender(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  if (!shouldRender) return null;
+
+  return (
+    <>
+      {/* Backdrop (Fade In/Out) */}
+      <div
+        className={`fixed inset-0 z-50 transition-opacity duration-300 ${
+          isOpen ? "opacity-50 bg-black/50" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+      ></div>
+
+      {/* Panel Content (Slide In/Out) */}
+      <div
+        className={`fixed top-0 right-0 z-[60] bg-white w-full max-w-xs h-full shadow-2xl p-4
+                    transform transition-transform duration-300 ease-in-out
+                    ${isOpen ? "translate-x-0" : "translate-x-full"}
+                `}
+      >
+        <div className="flex justify-between items-center mb-4 border-b pb-2">
+          <h3 className="text-lg text-black font-bold">Notifications</h3>
+          <button
+            onClick={onClose}
+            aria-label="Close notifications"
+            className="text-gray-500 hover:text-gray-700"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
+            <p className="text-sm font-medium text-gray-900">
+              New Feature Added 🎉
+            </p>
+            <p className="text-xs text-gray-500">
+              You can now view your files in the Library.
+            </p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
+            <p className="text-sm font-medium text-gray-900">
+              Demo Plan Expiration
+            </p>
+            <p className="text-xs text-red-500">
+              Your plan expires in 3 days. Upgrade soon!
+            </p>
+          </div>
+        </div>
+        <p className="text-sm text-gray-500 pt-4">
+          Your notifications will appear here.
+        </p>
+      </div>
+    </>
+  );
+};
+
+// --- PageLayout Component (The main application wrapper) ---
 export default function PageLayout() {
   const [activeItem, setActiveItem] = useState<string>("New Chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false); // State for collapse // NEW STATE for the modal
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
   const [isLogoutModalOpen, setIsLogoutModal] = useState<boolean>(false);
+
+  // State for controlling the visibility of the notifications panel
+  const [isNotificationsPanelOpen, setIsNotificationsPanelOpen] =
+    useState<boolean>(false);
 
   const toggleSidebar = (shouldOpen?: boolean): void => {
     if (typeof shouldOpen === "boolean") setIsSidebarOpen(shouldOpen);
     else setIsSidebarOpen((prev) => !prev);
   };
 
-  const toggleCollapse = (): void => {
-    setIsCollapsed((prev) => !prev); // Function to toggle collapse
-  }; // NEW FUNCTIONS for the modal
+  const toggleSidebarCollapse = (): void => {
+    setIsSidebarCollapsed((prev) => !prev);
+  };
 
   const openLogoutModal = () => setIsLogoutModal(true);
   const closeLogoutModal = () => setIsLogoutModal(false);
 
-  // --- NEW: Notification Handler ---
+  // Function to toggle the notifications panel state
+  const toggleNotificationsPanel = (shouldOpen?: boolean): void => {
+    if (typeof shouldOpen === "boolean")
+      setIsNotificationsPanelOpen(shouldOpen);
+    else setIsNotificationsPanelOpen((prev) => !prev);
+  };
+
+  // --- Notification Handler ---
   const handleNotificationsClick = () => {
-    console.log("Notifications clicked. Implement navigation/modal here.");
-    setActiveItem("Notifications"); // Or open a modal/drawer
-    toggleSidebar(false); // Close sidebar on mobile
+    // Close sidebar on mobile if it's open, then toggle the panel
+    if (isSidebarOpen) {
+      toggleSidebar(false);
+    }
+    toggleNotificationsPanel(); // Use the toggle function
   };
 
   return (
-    // FIX APPLIED: Removed 'flex' from the main container to manage layout using margins.
     <div className="min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
       <SideBar
@@ -510,32 +600,38 @@ export default function PageLayout() {
         plan="Demo plan"
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
-        isCollapsed={isCollapsed}
-        toggleCollapse={toggleCollapse}
-        openLogoutModal={openLogoutModal} // Pass the new function
-        handleNotificationsClick={handleNotificationsClick} // Pass the new function
+        isCollapsed={isSidebarCollapsed}
+        toggleCollapse={toggleSidebarCollapse}
+        openLogoutModal={openLogoutModal}
+        handleNotificationsClick={handleNotificationsClick}
       />
 
       {/* Right side scrollable area */}
       <div
         className={`flex-1 flex lg:bg-[#F5F5F5] flex-col transition-all duration-300 ease-in-out lg:h-screen
-          ${isCollapsed ? "lg:ml-20" : "lg:ml-64"} 
+          ${isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"} 
           overflow-y-auto
         `}
       >
         <MobileHeader
           toggleSidebar={toggleSidebar}
-          handleNotificationsClick={handleNotificationsClick} // Pass the new function
+          handleNotificationsClick={handleNotificationsClick}
         />
         <MainContent
           activeItem={activeItem}
           contentMap={contentMap}
-          setActiveItem={setActiveItem} // This prop is now relying on the imported type
+          setActiveItem={setActiveItem}
         />
       </div>
 
       {/* Logout Confirmation Modal */}
       <LogoutModal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} />
+
+      {/* Notifications Slide-Over Panel with Animation */}
+      <NotificationsPanel
+        isOpen={isNotificationsPanelOpen}
+        onClose={() => toggleNotificationsPanel(false)}
+      />
     </div>
   );
 }

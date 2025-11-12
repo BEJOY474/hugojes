@@ -235,7 +235,7 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
                 setName(e.target.value)
               }
               placeholder="Enter user name"
-              className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
+              className="w-full p-3 border text-black border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
           </div>
 
@@ -250,7 +250,7 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
                 setEmail(e.target.value)
               }
               placeholder="Enter user email"
-              className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
+              className="w-full p-3 border border-gray-300 text-black rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
           </div>
 
@@ -265,7 +265,7 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
                 setPassword(e.target.value)
               }
               placeholder="Enter password"
-              className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
+              className="w-full p-3 border text-black border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
           </div>
 
@@ -501,7 +501,7 @@ const UserManagementView: React.FC = () => {
           <input
             type="text"
             placeholder="Search users by name or email..."
-            className="w-full pl-10 pr-4 py-2 sm:py-3 border border-gray-200 rounded-lg outline-none transition-shadow focus:ring-2 focus:ring-violet-300 text-sm sm:text-base"
+            className="w-full pl-10 pr-4 py-2 sm:py-3 border text-black border-gray-200 rounded-lg outline-none transition-shadow focus:ring-2 focus:ring-violet-300 text-sm sm:text-base"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
