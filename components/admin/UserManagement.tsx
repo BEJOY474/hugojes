@@ -1,8 +1,8 @@
-// src/app/admin/UserManagementView/page.tsx (Assuming this is the path)
+// src/app/admin/UserManagementView/page.tsx
 
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, FormEvent, ChangeEvent, useMemo } from "react";
 import Image from "next/image";
 import { Search, Eye, Edit, Trash2, Plus, X } from "lucide-react";
 import { Inter } from "next/font/google";
@@ -32,6 +32,7 @@ export interface User {
   recentActivity: { id: number; description: string; time: string }[];
 }
 
+// --- UPDATED: Increased Mock Data to 8 Users for Pagination Test ---
 const initialMockUsers: User[] = [
   {
     id: 1,
@@ -94,6 +95,59 @@ const initialMockUsers: User[] = [
     lastLogin: "2025-10-20 04:00 PM",
     totalLibrary: 5,
     totalQueries: 20,
+    recentActivity: [],
+  },
+  // --- Additional Users for Pagination ---
+  {
+    id: 5,
+    name: "David Lee",
+    email: "david.lee@example.com",
+    registeredDate: "2025-10-01",
+    status: "Active",
+    avatarSrc: "/image/Admin/userIcon.jpg",
+    phone: "+1 (555) 333-4444",
+    lastLogin: "2025-10-30 08:00 AM",
+    totalLibrary: 50,
+    totalQueries: 300,
+    recentActivity: [],
+  },
+  {
+    id: 6,
+    name: "Emily Brown",
+    email: "emily.brown@example.com",
+    registeredDate: "2025-09-15",
+    status: "Inactive",
+    avatarSrc: "/image/Admin/userIcon.jpg",
+    phone: "+1 (555) 666-7777",
+    lastLogin: "2025-09-20 01:00 PM",
+    totalLibrary: 10,
+    totalQueries: 40,
+    recentActivity: [],
+  },
+  {
+    id: 7,
+    name: "Chris Taylor",
+    email: "chris.taylor@example.com",
+    registeredDate: "2025-11-01",
+    status: "Active",
+    avatarSrc: "/image/Admin/userIcon.jpg",
+    phone: "+1 (555) 888-9999",
+    lastLogin: "2025-11-12 11:45 AM",
+    totalLibrary: 25,
+    totalQueries: 120,
+    recentActivity: [],
+  },
+  {
+    id: 8,
+    name: "Jessica Hall",
+    email: "jessica.hall@example.com",
+    registeredDate: "2025-09-28",
+    status: "Active",
+    avatarSrc: "/image/Admin/userIcon.jpg",
+    phone: "+1 (555) 101-2020",
+    lastLogin: "2025-11-10 03:00 PM",
+    totalLibrary: 18,
+    totalQueries: 95,
     recentActivity: [],
   },
 ];
@@ -322,16 +376,15 @@ const highlightText = (text: string, searchTerm: string) => {
   });
 };
 
-// FIX: Component signature updated to use the full UserListItemProps interface
 const UserListItem: React.FC<UserListItemProps> = ({
   user,
   searchTerm,
-  onDeleteClick, // Destructure the new props
-  onViewClick, // Destructure the new props
-  onEditClick, // Destructure the new props
+  onDeleteClick,
+  onViewClick,
+  onEditClick,
 }) => {
   return (
-    <div className="p-2 sm:p-4 bg-white">
+    <div className="p-2 sm:p-3 bg-white">
       <div className="flex flex-col sm:flex-row justify-between w-full p-3 sm:p-4 rounded-lg items-start sm:items-center bg-white border border-gray-100">
         {/* User Info (Name, Email, Status, Date) */}
         <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1 min-w-0 mb-3 sm:mb-0">
@@ -401,6 +454,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
 // =======================
 // 🧩 Main User Management View (Responsiveness Focused)
 // =======================
+const USERS_TO_LOAD = 4; // Constant for pagination chunk size
+
 const UserManagementView: React.FC = () => {
   const [users, setUsers] = useState<User[]>(initialMockUsers);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -408,12 +463,23 @@ const UserManagementView: React.FC = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  // NEW STATE for pagination: tracking how many users to display
+  const [usersPerPage, setUsersPerPage] = useState<number>(USERS_TO_LOAD);
 
-  const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filtered users (Memoized for performance)
+  const filteredUsers = useMemo(() => {
+    return users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, searchTerm]);
+
+  // Paginated users: only slice the list based on usersPerPage
+  const displayedUsers = filteredUsers.slice(0, usersPerPage);
+
+  // Logic to determine if the Load More button should be visible
+  const hasMoreUsers = usersPerPage < filteredUsers.length;
 
   const handleAddNewUser = (name: string, email: string) => {
     const newId =
@@ -436,6 +502,8 @@ const UserManagementView: React.FC = () => {
 
   const handleDeleteUser = (userId: number) => {
     setUsers((prev) => prev.filter((u) => u.id !== userId));
+    // Reset display count if the deleted user was one of the last visible ones
+    setUsersPerPage((prev) => Math.min(prev, filteredUsers.length - 1));
   };
 
   const openDeleteModal = (user: User) => setUserToDelete(user);
@@ -457,6 +525,11 @@ const UserManagementView: React.FC = () => {
       })
     );
     setEditingUser(null);
+  };
+
+  // --- NEW: Load More Handler ---
+  const handleLoadMore = () => {
+    setUsersPerPage((prev) => prev + USERS_TO_LOAD);
   };
 
   if (selectedUser)
@@ -518,26 +591,40 @@ const UserManagementView: React.FC = () => {
         </p>
 
         <div>
-          {/* List Items */}
-          {filteredUsers.map((user) => (
+          {/* List Items (Using the displayedUsers slice) */}
+          {displayedUsers.map((user) => (
             <UserListItem
               key={user.id}
               user={user}
               searchTerm={searchTerm}
-              onDeleteClick={openDeleteModal} // Now correctly assigned
-              onViewClick={handleViewUser} // Now correctly assigned
-              onEditClick={handleEditUser} // Now correctly assigned
+              onDeleteClick={openDeleteModal}
+              onViewClick={handleViewUser}
+              onEditClick={handleEditUser}
             />
           ))}
+
+          {/* Display message if no users match the search */}
+          {filteredUsers.length === 0 && (
+            <p className="text-center text-gray-500 py-8">
+              No users match your search criteria.
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="flex justify-center p-4">
-        <button className="text-sm text-[#7F56D9] font-medium hover:text-[#6941C6]">
-          Load More
-        </button>
-      </div>
+      {/* Load More Button (Conditionally rendered) */}
+      {hasMoreUsers && (
+        <div className="flex justify-center p-4">
+          <button
+            onClick={handleLoadMore}
+            className="text-sm text-[#7F56D9] font-medium hover:text-[#6941C6] py-2 px-4  rounded-lg transition-colors"
+          >
+            Load More
+          </button>
+        </div>
+      )}
 
+      {/* Modals */}
       <AddNewUserModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
