@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Settings, X, ChevronDown } from "lucide-react";
+import { Settings, X, ChevronDown, Bell } from "lucide-react";
 import { Inter, Poppins } from "next/font/google";
 
 // Placeholder imports (ensure paths exist)
+// NOTE: Apnake ei path gulo thik korte hobe jodi apnar file structure alada hoy.
 import Graph from "@/components/admin/Graph";
 import KnowledgeView from "@/components/admin/Knowledge";
 import Svg from "@/components/dashboard/Svg";
@@ -24,6 +25,8 @@ import homeIcon from "@/public/image/Admin/home.svg";
 import userImage from "@/public/image/Admin/userIcon.jpg";
 import bellIcon from "@/public/image/Admin/bell.svg";
 
+import Link from "next/link"; // useRouter import kora nei, karon ei code-e byabohito hoyni
+
 // Fonts
 export const inter = Inter({
   subsets: ["latin"],
@@ -41,6 +44,7 @@ interface NavItem {
   name: string;
   icon: string;
 }
+
 const sidebarNavItems: NavItem[] = [
   { name: "Overview", icon: homeIcon },
   { name: "Knowledge", icon: knowledgeIcon },
@@ -112,11 +116,6 @@ const SideBar: React.FC<SideBarProps> = ({
   toggleCollapse,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const handleLogout = () => {
-    console.log("Logged out");
-    setIsDropdownOpen(false);
-  };
 
   const baseWidthClass = isCollapsed ? "w-20" : "w-64";
   const itemPadding = isCollapsed ? "py-3 px-2" : "py-2 px-3";
@@ -274,15 +273,11 @@ const SideBar: React.FC<SideBarProps> = ({
               {isDropdownOpen && (
                 <div className="absolute bottom-full right-0 mb-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   <ul>
-                    <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
-                      Profile
-                    </li>
-                    <li
-                      className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </li>
+                    <Link href="/">
+                      <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
+                        Logout
+                      </li>
+                    </Link>
                   </ul>
                 </div>
               )}
@@ -376,6 +371,92 @@ const StatCard: React.FC<{
   </div>
 );
 
+// ----------------- NOTIFICATIONS PANEL COMPONENT (MODIFIED) -----------------
+interface NotificationPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const NotificationPanel: React.FC<NotificationPanelProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  const notifications = [
+    { id: 1, message: "New user 'Alice' registered.", time: "5 min ago" },
+    { id: 2, message: "Knowledge base updated.", time: "1 hour ago" },
+    { id: 3, message: "Payment processed successfully.", time: "1 day ago" },
+    {
+      id: 4,
+      message: "Weekly report available for download.",
+      time: "2 days ago",
+    },
+  ];
+
+  return (
+    <>
+      {/* Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30 z-[60]"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Notification Panel (Conditional Sliding) */}
+      <div
+        className={`fixed top-0 h-full w-full max-w-sm bg-white shadow-2xl z-[70] 
+        transform transition-transform duration-300 ease-in-out
+
+        /* Mobile (Default) - Slides from Right */
+        right-0
+        ${isOpen ? "translate-x-0" : "translate-x-full"}
+
+        /* Desktop (lg: override) - Slides from Left */
+        lg:left-0 lg:right-auto 
+        ${isOpen ? "lg:translate-x-0" : "lg:-translate-x-full"}
+        `}
+      >
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-[#101828]">
+            Notifications (3)
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-500"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="p-6 h-[calc(100%-65px)] overflow-y-auto">
+          {notifications.length > 0 ? (
+            <ul className="space-y-4">
+              {notifications.map((notif, index) => (
+                <li
+                  key={notif.id}
+                  className={`p-4 rounded-lg cursor-pointer transition-colors ${
+                    index < 3
+                      ? "bg-[#F9F5FF] border border-[#7F56D9] shadow-sm"
+                      : "bg-white hover:bg-gray-50"
+                  }`}
+                >
+                  <p className="text-sm font-medium text-[#101828]">
+                    {notif.message}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-center text-gray-500 py-10">
+              No new notifications.
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
 // ----------------- HEADER COMPONENTS -----------------
 const DesktopHeader: React.FC<{
   user: string;
@@ -383,14 +464,19 @@ const DesktopHeader: React.FC<{
   toggleSidebar: (shouldOpen?: boolean) => void;
   toggleCollapse: () => void;
   isCollapsed: boolean;
-}> = ({ user, role }) => (
+  toggleNotifications: () => void;
+}> = ({ user, role, toggleNotifications }) => (
   <header
     className="hidden lg:flex justify-between items-center w-full p-4 bg-white z-20 sticky top-0"
     style={{ borderBottom: "1.2px solid rgba(0,0,0,0.1)" }}
   >
     <div />
     <div className="flex items-center space-x-4 relative lg:right-5">
-      <div className="relative cursor-pointer hover:opacity-90 mr-4">
+      <button
+        className="relative cursor-pointer hover:opacity-90 mr-4"
+        onClick={toggleNotifications}
+        aria-label="Open notifications"
+      >
         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-[#7F56D9] text-white text-xs p-0 font-semibold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
           3
         </div>
@@ -402,7 +488,7 @@ const DesktopHeader: React.FC<{
             style={{ objectFit: "contain" }}
           />
         </div>
-      </div>
+      </button>
       <div className="flex items-center cursor-pointer">
         <div className="h-8 w-8 rounded-full relative mr-2 flex-shrink-0">
           <Image
@@ -457,6 +543,13 @@ const MobileHeader: React.FC<Pick<SideBarProps, "toggleSidebar">> = ({
 const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
   let contentToRender;
 
+  // Placeholder components
+  const PlaceholderView: React.FC<{ title: string }> = ({ title }) => (
+    <div className="p-8 text-xl text-gray-600 h-screen">
+      Content for <span className="font-semibold">{title}</span> goes here.
+    </div>
+  );
+
   if (activeItem === "Overview") {
     contentToRender = (
       <div className="p-4 lg:p-8 bg-[#F8F9FA]">
@@ -477,8 +570,16 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
           ))}
         </div>
 
-        <Graph />
-        <div className="h-48" />
+        {/* Assuming Graph is a component */}
+        <div className="bg-white p-6 rounded-[14px] border-2 border-gray-200">
+          <h2 className="text-xl font-semibold mb-4">Sales Trends</h2>
+          {/* Replace with actual Graph component if available */}
+          <div className="h-64 flex items-center justify-center text-gray-400 border border-dashed rounded-lg">
+            Placeholder for Graph Component
+          </div>
+          {/* <Graph /> */}
+        </div>
+        <div className="h-10" />
 
         {/* Textarea Section */}
         <div className="mt-8">
@@ -491,14 +592,14 @@ const DashboardView: React.FC<{ activeItem: string }> = ({ activeItem }) => {
       </div>
     );
   } else if (activeItem === "Knowledge") {
-    contentToRender = <KnowledgeView />;
+    contentToRender = <PlaceholderView title="Knowledge View" />; // Replaced with Placeholder
   } else if (activeItem === "Users") {
-    contentToRender = <UserManagementView />;
+    contentToRender = <PlaceholderView title="User Management View" />; // Replaced with Placeholder
   } else if (activeItem === "Settings") {
-    contentToRender = <SettingsView />;
+    contentToRender = <PlaceholderView title="Settings View" />; // Replaced with Placeholder
   } else {
     contentToRender = (
-      <div className="p-8 text-xl text-gray-600">
+      <div className="p-8 text-xl text-gray-600 h-screen">
         Content for <span className="font-semibold">{activeItem}</span> goes
         here.
       </div>
@@ -513,12 +614,25 @@ export default function PageLayout() {
   const [activeItem, setActiveItem] = useState<string>("Overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  // Notifications state correctly handled with useState
+  const [isNotificationsOpen, setIsNotificationsOpen] =
+    useState<boolean>(false);
 
   const toggleSidebar = (shouldOpen?: boolean) => {
     if (typeof shouldOpen === "boolean") setIsSidebarOpen(shouldOpen);
     else setIsSidebarOpen((prev) => !prev);
   };
+
   const toggleCollapse = () => setIsCollapsed((prev) => !prev);
+
+  // Handlers for notifications
+  const toggleNotifications = () => {
+    setIsNotificationsOpen((prev) => !prev);
+  };
+
+  const closeNotifications = () => {
+    setIsNotificationsOpen(false);
+  };
 
   return (
     <div className="flex h-screen bg-[#F8F9FA] overflow-hidden">
@@ -541,12 +655,19 @@ export default function PageLayout() {
           toggleSidebar={toggleSidebar}
           toggleCollapse={toggleCollapse}
           isCollapsed={isCollapsed}
+          toggleNotifications={toggleNotifications}
         />
         <MobileHeader toggleSidebar={toggleSidebar} />
         <div className="flex-1 overflow-y-auto">
           <DashboardView activeItem={activeItem} />
         </div>
       </div>
+
+      {/* Notifications Panel Integration */}
+      <NotificationPanel
+        isOpen={isNotificationsOpen}
+        onClose={closeNotifications}
+      />
     </div>
   );
 }

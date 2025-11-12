@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronLeft } from "lucide-react";
 import React, { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 import { Inter } from "next/font/google";
 
 export const inter = Inter({
@@ -10,9 +10,6 @@ export const inter = Inter({
   variable: "--font-inter",
 });
 
-// ==========================
-// User Type Definition
-// ==========================
 export interface UserDetail {
   id: number;
   name: string;
@@ -44,8 +41,7 @@ const FormInput: React.FC<{
       type="text"
       value={value}
       onChange={onChange}
-      className="w-full px-3 py-2.5 text-base border border-gray-300 rounded-lg bg-gray-50 text-[#101828] focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"
-      disabled={label === "Status"}
+      className="w-full px-3 py-2.5 text-base border border-gray-300 rounded-lg bg-gray-50 text-[#101828] outline-none  transition duration-150"
     />
   </div>
 );
@@ -72,9 +68,9 @@ const ToggleSwitch: React.FC<{
         className="sr-only peer"
       />
       <div
-        className={`w-11 h-6 rounded-full transition-colors relative
-          ${checked ? "bg-[#7F56D9]" : "bg-gray-200"}
-          after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+        className={`w-11 h-6 rounded-full transition-colors relative ${
+          checked ? "bg-[#7F56D9]" : "bg-gray-200"
+        } after:content-[''] after:absolute after:top-[2px] after:left-[2px]
           after:bg-white after:border-gray-300 after:border after:rounded-full
           after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full`}
       />
@@ -88,7 +84,7 @@ const ToggleSwitch: React.FC<{
 interface EditUserViewProps {
   user: UserDetail;
   onBack: () => void;
-  onSave: (updatedUser: UserDetail) => void; // ✅ Added this prop
+  onSave: (updatedUser: UserDetail) => void;
 }
 
 const EditUserView: React.FC<EditUserViewProps> = ({
@@ -96,7 +92,14 @@ const EditUserView: React.FC<EditUserViewProps> = ({
   onBack,
   onSave,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    fullName: string;
+    email: string;
+    phone: string;
+    status: "Active" | "Inactive";
+    canUpload: boolean;
+    canDelete: boolean;
+  }>({
     fullName: user.name,
     email: user.email,
     phone: user.phone,
@@ -107,8 +110,13 @@ const EditUserView: React.FC<EditUserViewProps> = ({
 
   const handleChange =
     (field: keyof typeof formData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, [field]: e.target.value });
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value =
+        field === "status" &&
+        (e.target.value === "Active" || e.target.value === "Inactive")
+          ? (e.target.value as "Active" | "Inactive")
+          : e.target.value;
+      setFormData({ ...formData, [field]: value });
     };
 
   const handleToggle = (field: "canUpload" | "canDelete") => () => {
@@ -123,7 +131,7 @@ const EditUserView: React.FC<EditUserViewProps> = ({
       phone: formData.phone,
       status: formData.status,
     };
-    onSave(updatedUser); // ✅ Return updated data to parent
+    onSave(updatedUser);
   };
 
   const subtleShadow = "shadow-[0_1px_3px_rgba(15,23,42,0.06)]";
@@ -140,6 +148,7 @@ const EditUserView: React.FC<EditUserViewProps> = ({
         <ChevronLeft className="h-4 w-4 mr-1" />
         Back to Users
       </button>
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-semibold text-[#101828]">Edit User</h1>
@@ -147,6 +156,7 @@ const EditUserView: React.FC<EditUserViewProps> = ({
           Update user information and permissions
         </p>
       </div>
+
       {/* Form Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 mb-10">
         <FormInput
@@ -165,17 +175,20 @@ const EditUserView: React.FC<EditUserViewProps> = ({
           onChange={handleChange("phone")}
         />
 
-        {/* Status */}
+        {/* Status Dropdown */}
         <div className="space-y-1.5 relative">
           <label className="text-sm font-medium text-gray-700">Status</label>
           <div className="relative">
-            <input
-              type="text"
+            <select
               value={formData.status}
               onChange={handleChange("status")}
-              className="w-full px-3 py-2.5 text-base border border-gray-300 rounded-lg bg-gray-50 text-[#101828] focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 cursor-pointer"
-              readOnly
-            />
+              className="w-full px-3 py-2.5 text-base border border-gray-300 rounded-lg bg-gray-50 text-[#101828] outline-none transition duration-150 appearance-none cursor-pointer"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Not active</option>
+            </select>
+
+            {/* Dropdown Arrow Icon */}
             <svg
               className="w-5 h-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
               xmlns="http://www.w3.org/2000/svg"
@@ -191,6 +204,7 @@ const EditUserView: React.FC<EditUserViewProps> = ({
           </div>
         </div>
       </div>
+
       {/* Permissions */}
       <div className="mb-10">
         <h2 className="text-xl font-semibold text-[#101828] mb-4">
@@ -211,21 +225,17 @@ const EditUserView: React.FC<EditUserViewProps> = ({
           />
         </div>
       </div>
-      {/* Action Buttons */}
 
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-100">
-        {/* Cancel Button */}
         <button
           onClick={onBack}
-          // w-full on small screens, w-auto on larger screens
           className="w-full sm:w-auto px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition"
         >
           Cancel
         </button>
-        {/* Save Changes Button */}
         <button
           onClick={handleSubmit}
-          // w-full on small screens, w-auto on larger screens
           className="w-full sm:w-auto px-4 py-2 text-base font-medium text-white bg-[#7F56D9] rounded-lg shadow-sm hover:bg-[#6943C5] transition"
         >
           Save Changes

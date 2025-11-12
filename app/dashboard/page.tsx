@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Settings, X, LogOut as LogOutIcon } from "lucide-react";
+import { Settings, X, LogOut as LogOutIcon, Bell } from "lucide-react"; // Imported Bell icon
 import { Inter, Poppins } from "next/font/google";
 import { useRouter } from "next/navigation"; // New import for navigation
 import pIcon from "@/public/image/dashboard/pIcon.svg";
@@ -57,8 +57,9 @@ interface SideBarProps {
   toggleSidebar: (shouldOpen?: boolean) => void;
   isCollapsed: boolean;
   toggleCollapse: () => void;
-  // NEW PROP
   openLogoutModal: () => void;
+  // NEW PROP for handling notifications
+  handleNotificationsClick: () => void;
 }
 
 const SideBar: React.FC<SideBarProps> = ({
@@ -70,23 +71,23 @@ const SideBar: React.FC<SideBarProps> = ({
   toggleSidebar,
   isCollapsed,
   toggleCollapse,
-  openLogoutModal, // Destructure new prop
+  openLogoutModal,
+  handleNotificationsClick, // Destructure new prop
 }) => (
   <>
     {/* Sidebar */}
-    <aside
-      // --- COLLAPSIBLE WIDTH & TRANSITION ---
+    <aside // --- COLLAPSIBLE WIDTH & TRANSITION ---
       className={`fixed top-0 left-0 h-screen p-4 flex flex-col justify-between z-50 
-			transition-all duration-300 ease-in-out
-			${isCollapsed ? "w-20" : "w-64"} 
-			${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-			bg-white border-r border-gray-200
-			lg:translate-x-0 lg:static lg:flex-shrink-0
-			`}
+      transition-all duration-300 ease-in-out
+      ${isCollapsed ? "w-20" : "w-64"} 
+      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+      bg-white border-r border-gray-200
+      // FIX APPLIED: Changed 'lg:static' to 'lg:fixed' to keep the sidebar fixed.
+      lg:translate-x-0 lg:fixed lg:h-screen
+      `}
     >
       <div>
-        <div
-          // Logo/Title container class updated for alignment in collapsed state
+        <div // Logo/Title container class updated for alignment in collapsed state
           className={`flex items-center space-x-2 mb-8 ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
@@ -105,7 +106,9 @@ const SideBar: React.FC<SideBarProps> = ({
               className={`${
                 poppins.variable
               } italic text-xl font-semibold ml-1 text-[#3d3d3a] 
-							${isCollapsed ? "hidden" : "block"} transition-opacity duration-300`}
+              ${
+                isCollapsed ? "hidden" : "block"
+              } transition-opacity duration-300`}
             >
               Petrobasin
             </span>
@@ -132,6 +135,41 @@ const SideBar: React.FC<SideBarProps> = ({
           </button>
         </div>
 
+        {/* --- NEW: Notification Icon for Desktop Sidebar (Collapsed/Uncollapsed) --- */}
+        <div
+          className={`
+            ${isCollapsed ? "flex justify-center" : "flex justify-between"}
+            items-center mb-4 transition-all duration-300
+            ${isCollapsed ? "" : "border-b border-gray-200 pb-4"} 
+            hidden lg:flex
+          `}
+        >
+          {/* Notification Button - ALWAYS visible on desktop sidebar */}
+          <button
+            onClick={handleNotificationsClick}
+            className={`p-2 rounded-full text-[#3D3D3A] hover:bg-gray-100 transition-colors ${
+              isCollapsed ? "" : ""
+            }`}
+            aria-label="View notifications"
+          >
+            <Bell className="h-6 w-6" />
+          </button>
+
+          {/* Label for Notification - Hidden when collapsed */}
+          <span
+            className={`${
+              inter.className
+            } text-[16px] text-[#3D3D3A] font-medium ${
+              isCollapsed ? "hidden" : "block"
+            } mr-auto ml-2`}
+          >
+            Notifications
+          </span>
+          {/* Placeholder/Space for alignment when uncollapsed */}
+          {!isCollapsed && <div className="w-8"></div>}
+        </div>
+        {/* --- END NEW: Notification Icon for Desktop Sidebar --- */}
+
         {/* Navigation */}
         <nav className={`${inter.className} text-[16px] space-y-1`}>
           {/* New Chat */}
@@ -140,17 +178,16 @@ const SideBar: React.FC<SideBarProps> = ({
             onClick={() => {
               setActiveItem("New Chat");
               toggleSidebar(false);
-            }}
-            // Adjusted layout for collapsed state
+            }} // Adjusted layout for collapsed state
             className={`flex items-center w-full ${
               isCollapsed ? "justify-center" : "px-3"
             } py-2 text-[16px] transition-colors duration-150 rounded-md
-						${
+            ${
               activeItem === "New Chat"
                 ? "bg-[#e5e7eb] text-[#3D3D3A]"
                 : "text-[#3D3D3A] hover:bg-gray-100"
             }
-						`}
+            `}
           >
             <div
               className={`h-6 w-6 relative flex-shrink-0 bg-[#3D3D3A] text-white rounded-full ${
@@ -181,8 +218,7 @@ const SideBar: React.FC<SideBarProps> = ({
               onClick={() => {
                 setActiveItem(item.name);
                 toggleSidebar(false);
-              }}
-              // Adjusted layout for collapsed state
+              }} // Adjusted layout for collapsed state
               className={`flex items-center w-full ${
                 isCollapsed ? "justify-center" : "px-3"
               } py-2 rounded-md text-[16px] transition-colors duration-150 ${
@@ -256,8 +292,8 @@ const SideBar: React.FC<SideBarProps> = ({
         {/* Settings Button */}
         <div
           className={`flex items-center cursor-pointer rounded-lg transition-colors duration-150 p-2 
-						${isCollapsed ? "justify-center" : "justify-start p-2"} 
-						text-gray-600 hover:text-indigo-700`}
+            ${isCollapsed ? "justify-center" : "justify-start p-2"} 
+            text-gray-600 hover:text-indigo-700`}
           onClick={() => {
             setActiveItem("Settings");
             toggleSidebar(false);
@@ -277,8 +313,8 @@ const SideBar: React.FC<SideBarProps> = ({
         {/* User Info & Logout */}
         <div
           className={`flex items-center justify-between p-2 border-t border-gray-200
-						${isCollapsed ? "flex-col p-2" : "flex-row"}
-						`}
+            ${isCollapsed ? "flex-col p-2" : "flex-row"}
+            `}
         >
           <div className="flex items-center">
             <div className="h-8 w-8 rounded-full bg-[#3D3D3A] flex items-center justify-center text-white font-bold text-sm mr-3 flex-shrink-0">
@@ -368,12 +404,17 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-// --- MobileHeader Component ---
+// --- MobileHeader Component (UPDATED) ---
 interface MobileHeaderProps {
   toggleSidebar: (shouldOpen?: boolean) => void;
+  // NEW PROP
+  handleNotificationsClick: () => void;
 }
 
-const MobileHeader: React.FC<MobileHeaderProps> = ({ toggleSidebar }) => (
+const MobileHeader: React.FC<MobileHeaderProps> = ({
+  toggleSidebar,
+  handleNotificationsClick,
+}) => (
   <header className="sticky top-0 left-0 w-full bg-white p-4 border-b border-gray-200 flex items-center justify-between lg:hidden z-30 shadow-sm">
     <button
       onClick={() => toggleSidebar(true)}
@@ -406,7 +447,15 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ toggleSidebar }) => (
       </span>
     </div>
 
-    <div className="w-8"></div>
+    {/* --- NEW: Notification Icon for Mobile Header --- */}
+    <button
+      onClick={handleNotificationsClick}
+      className="p-2 text-[#3D3D3A] flex-shrink-0"
+      aria-label="View notifications"
+    >
+      <Bell className="h-6 w-6" />
+    </button>
+    {/* --- END NEW: Notification Icon for Mobile Header --- */}
   </header>
 );
 
@@ -424,13 +473,12 @@ const contentMap = {
     "Details for the second recent custom tool integration.",
 };
 
-// --- PageLayout Component (The main application wrapper) ---
+// --- PageLayout Component (The main application wrapper) (UPDATED) ---
 export default function PageLayout() {
   const [activeItem, setActiveItem] = useState<string>("New Chat");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(false); // State for collapse
-  // NEW STATE for the modal
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false); // State for collapse // NEW STATE for the modal
+  const [isLogoutModalOpen, setIsLogoutModal] = useState<boolean>(false);
 
   const toggleSidebar = (shouldOpen?: boolean): void => {
     if (typeof shouldOpen === "boolean") setIsSidebarOpen(shouldOpen);
@@ -439,15 +487,21 @@ export default function PageLayout() {
 
   const toggleCollapse = (): void => {
     setIsCollapsed((prev) => !prev); // Function to toggle collapse
+  }; // NEW FUNCTIONS for the modal
+
+  const openLogoutModal = () => setIsLogoutModal(true);
+  const closeLogoutModal = () => setIsLogoutModal(false);
+
+  // --- NEW: Notification Handler ---
+  const handleNotificationsClick = () => {
+    console.log("Notifications clicked. Implement navigation/modal here.");
+    setActiveItem("Notifications"); // Or open a modal/drawer
+    toggleSidebar(false); // Close sidebar on mobile
   };
 
-  // NEW FUNCTIONS for the modal
-  const openLogoutModal = () => setIsLogoutModalOpen(true);
-  const closeLogoutModal = () => setIsLogoutModalOpen(false);
-
   return (
-    // Changed h-screen to min-h-screen for better content flow, keeping flex structure
-    <div className="flex min-h-screen bg-[#F8F9FA]">
+    // FIX APPLIED: Removed 'flex' from the main container to manage layout using margins.
+    <div className="min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
       <SideBar
         activeItem={activeItem}
@@ -459,17 +513,24 @@ export default function PageLayout() {
         isCollapsed={isCollapsed}
         toggleCollapse={toggleCollapse}
         openLogoutModal={openLogoutModal} // Pass the new function
+        handleNotificationsClick={handleNotificationsClick} // Pass the new function
       />
 
       {/* Right side scrollable area */}
-      {/* FIX APPLIED: Removed the conditional lg:ml- classes. flex-1 handles the remaining space. */}
-      <div className="flex-1 flex flex-col overflow-y-auto transition-all duration-300 ease-in-out">
-        <MobileHeader toggleSidebar={toggleSidebar} />
+      <div
+        className={`flex-1 flex lg:bg-[#F5F5F5] flex-col transition-all duration-300 ease-in-out lg:h-screen
+          ${isCollapsed ? "lg:ml-20" : "lg:ml-64"} 
+          overflow-y-auto
+        `}
+      >
+        <MobileHeader
+          toggleSidebar={toggleSidebar}
+          handleNotificationsClick={handleNotificationsClick} // Pass the new function
+        />
         <MainContent
           activeItem={activeItem}
           contentMap={contentMap}
-          setActiveItem={setActiveItem}
-          // This prop is now relying on the imported type
+          setActiveItem={setActiveItem} // This prop is now relying on the imported type
         />
       </div>
 

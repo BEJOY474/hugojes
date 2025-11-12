@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -82,16 +80,36 @@ const mockKnowledgeArticles: KnowledgeArticle[] = [
 const KNOWLEDGE_TYPES = ["All Type", "Documents", "Images", "PDFs"];
 const SORT_OPTIONS = ["Recent", "Oldest", "Alphabetical"];
 
-// --- Knowledge Card Component (unchanged) ---
+// --- Knowledge Card Component ---
 interface KnowledgeCardProps extends KnowledgeArticle {
   onClick?: () => void;
+  searchQuery: string; // Add the search query prop to highlight matches
 }
+
+// Highlight the matching portion of the title
+const highlightText = (text: string, query: string) => {
+  if (!query) return text;
+
+  const regex = new RegExp(`(${query})`, "gi"); // Case-insensitive matching
+  const parts = text.split(regex);
+
+  return parts.map((part, index) =>
+    part.toLowerCase() === query.toLowerCase() ? (
+      <span key={index} className="bg-yellow-300">
+        {part}
+      </span> // Highlighted text
+    ) : (
+      part
+    )
+  );
+};
 
 const KnowledgeCard: React.FC<KnowledgeCardProps> = ({
   title,
   subtitle,
   date,
   onClick,
+  searchQuery,
 }) => (
   <div
     onClick={onClick}
@@ -107,7 +125,8 @@ const KnowledgeCard: React.FC<KnowledgeCardProps> = ({
           <p
             className={`${inter.className} text-base sm:text-lg font-medium text-gray-900 truncate`}
           >
-            {title}
+            {/* Highlighted title */}
+            {highlightText(title, searchQuery)}
           </p>
           <p className={`${inter.className} text-sm text-gray-500 truncate`}>
             {subtitle}
@@ -227,6 +246,16 @@ const KnowledgeView: React.FC = () => {
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
 
+  // State for the search query
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filtered articles based on search query
+  const filteredArticles = mockKnowledgeArticles.filter(
+    (article) =>
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const openCustomToolModal = () => {
     setIsModalOpenCustomTools(true);
   };
@@ -260,7 +289,7 @@ const KnowledgeView: React.FC = () => {
 
       {/* Toolbar: Search and Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center bg-white p-4 sm:p-5 rounded-xl border border-gray-200 mb-8 gap-3 sm:gap-4">
-        {/* Search Input (unchanged) */}
+        {/* Search Input */}
         <div className="relative flex-1 w-full">
           <Image
             src={searchIcon}
@@ -272,6 +301,8 @@ const KnowledgeView: React.FC = () => {
           <input
             type="text"
             placeholder="Search articles"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 outline-none sm:py-2.5 border border-gray-300 rounded-lg text-gray-700 text-sm sm:text-base"
           />
         </div>
@@ -300,12 +331,13 @@ const KnowledgeView: React.FC = () => {
         </div>
       </div>
 
-      {/* Knowledge Articles Grid (unchanged) */}
+      {/* Knowledge Articles Grid (filtered by search query) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {mockKnowledgeArticles.map((article) => (
+        {filteredArticles.map((article) => (
           <KnowledgeCard
             key={article.id}
             {...article}
+            searchQuery={searchQuery} // Pass searchQuery to the card component
             onClick={openCustomToolModal}
           />
         ))}

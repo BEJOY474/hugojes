@@ -36,6 +36,7 @@ interface ChatviewProps {
 const Chatview = ({ setActiveItem }: ChatviewProps) => {
   const [chats, setChats] = useState(INITIAL_CHATS);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleNavigation = () => {
     setActiveItem("New Chat"); // Navigate to the "New Chat" screen
@@ -51,6 +52,24 @@ const Chatview = ({ setActiveItem }: ChatviewProps) => {
     setOpenMenuId(null);
     console.log(
       `Attempted to delete chat ${chatId}. New chat list count: ${updatedChats.length}`
+    );
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Function to highlight matching letters in the chat title
+  const highlightText = (text: string) => {
+    const regex = new RegExp(`(${searchQuery})`, "gi");
+    return text.split(regex).map((part, index) =>
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <span key={index} className="bg-yellow-300">
+          {part}
+        </span>
+      ) : (
+        part
+      )
     );
   };
 
@@ -87,6 +106,8 @@ const Chatview = ({ setActiveItem }: ChatviewProps) => {
         <input
           type="text"
           placeholder="Search chat"
+          value={searchQuery}
+          onChange={handleSearchChange}
           className={`${inter.className}
             w-full 
             p-3 
@@ -112,66 +133,77 @@ const Chatview = ({ setActiveItem }: ChatviewProps) => {
             </p>
           </div>
         ) : (
-          chats.map((chat) => (
-            <div
-              key={chat.id}
-              className="relative flex justify-between items-center p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow"
-            >
-              {/* Chat Info */}
+          chats
+            .filter((chat) =>
+              chat.title.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((chat) => (
               <div
-                className="flex-1 cursor-pointer"
-                onClick={() => console.log(`Open chat ${chat.id}`)}
+                key={chat.id}
+                className="relative flex justify-between items-center p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow"
               >
-                <p
-                  className={`${inter.className} text-[16px] font-medium text-[#3d3d3a]`}
+                {/* Chat Info */}
+                <div
+                  className="flex-1 cursor-pointer"
+                  onClick={() => console.log(`Open chat ${chat.id}`)}
                 >
-                  {chat.title}
-                </p>
-                <p className={`${inter.className} text-[12px] text-[#6d6d6d]`}>
-                  Last message {chat.lastMessageTime}
-                </p>
-              </div>
-
-              {/* Options Button */}
-              <button
-                className="p-2 text-gray-500 hover:text-[#7F56D9] ml-4 relative w-6 h-6 z-10"
-                onClick={() => toggleMenu(chat.id)}
-                aria-label="Chat options"
-              >
-                <Image src={elipshIcon} alt="Options Icon" fill />
-              </button>
-
-              {/* Dropdown Menu */}
-              {openMenuId === chat.id && (
-                <div className="absolute right-7 mt-20 w-48 bg-white border border-[rgba(31,30,29,0.15)] rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] origin-top-right transform translate-x-1 translate-y-2 z-20">
-                  <div className="py-1">
-                    <button
-                      className="flex items-center w-full gap-2 px-4 py-2 text-sm text-[#3D3D3A] hover:bg-gray-100"
-                      onClick={() => {
-                        console.log(`Rename chat ${chat.id}`);
-                        setOpenMenuId(null);
-                      }}
-                    >
-                      <Image src={rename} alt="rename" height={20} width={20} />
-                      Rename
-                    </button>
-                    <button
-                      className="flex font-medium items-center w-full px-4 py-3 text-sm text-[14px] text-[#DE1C1C] hover:bg-red-50"
-                      onClick={() => handleDeleteChat(chat.id)}
-                    >
-                      <Image
-                        src={deleteIcon}
-                        alt="delete"
-                        height={20}
-                        width={20}
-                      />
-                      Delete
-                    </button>
-                  </div>
+                  <p
+                    className={`${inter.className} text-[16px] font-medium text-[#3d3d3a]`}
+                  >
+                    {highlightText(chat.title)}
+                  </p>
+                  <p
+                    className={`${inter.className} text-[12px] text-[#6d6d6d]`}
+                  >
+                    Last message {chat.lastMessageTime}
+                  </p>
                 </div>
-              )}
-            </div>
-          ))
+
+                {/* Options Button */}
+                <button
+                  className="p-2 text-gray-500 hover:text-[#7F56D9] ml-4 relative w-6 h-6 z-10"
+                  onClick={() => toggleMenu(chat.id)}
+                  aria-label="Chat options"
+                >
+                  <Image src={elipshIcon} alt="Options Icon" fill />
+                </button>
+
+                {/* Dropdown Menu */}
+                {openMenuId === chat.id && (
+                  <div className="absolute right-7 mt-20 w-48 bg-white border border-[rgba(31,30,29,0.15)] rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] origin-top-right transform translate-x-1 translate-y-2 z-20">
+                    <div className="py-1">
+                      <button
+                        className="flex items-center w-full gap-2 px-4 py-2 text-sm text-[#3D3D3A] hover:bg-gray-100"
+                        onClick={() => {
+                          console.log(`Rename chat ${chat.id}`);
+                          setOpenMenuId(null);
+                        }}
+                      >
+                        <Image
+                          src={rename}
+                          alt="rename"
+                          height={20}
+                          width={20}
+                        />
+                        Rename
+                      </button>
+                      <button
+                        className="flex font-medium items-center w-full px-4 py-3 text-sm text-[14px] text-[#DE1C1C] hover:bg-red-50"
+                        onClick={() => handleDeleteChat(chat.id)}
+                      >
+                        <Image
+                          src={deleteIcon}
+                          alt="delete"
+                          height={20}
+                          width={20}
+                        />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
         )}
       </div>
     </div>

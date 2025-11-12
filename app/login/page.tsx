@@ -1,6 +1,8 @@
+// src/app/login/page.tsx
+
 "use client";
+
 import Link from "next/link";
-// 💡 Import useRouter from next/navigation
 import { useRouter } from "next/navigation";
 import { Inter } from "next/font/google";
 import HeaderText1 from "@/components/HeaderText1";
@@ -20,15 +22,14 @@ export const inter = Inter({
 });
 
 const Login: React.FC = () => {
-  // 💡 Initialize the router hook
   const router = useRouter();
 
-  // ✅ States
+  // States
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [agree, setAgree] = useState<boolean>(false);
 
-  // ✅ Handlers
+  // Handlers
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) =>
     setEmail(e.target.value);
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -50,10 +51,7 @@ const Login: React.FC = () => {
     }
 
     console.log("Login Submitted:", { email, password });
-
-    // 🚀 Navigation added here
-    // In a real application, you would perform an API call for authentication
-    // before navigating. Assuming successful login after validation:
+    // Navigate to the dashboard (or another success page)
     router.push("/dashboard");
   };
 
@@ -127,12 +125,6 @@ const Login: React.FC = () => {
 
         {/* Google Sign In */}
         <Button2 src={googleIcon} text="Sign in with Google" />
-        <Link
-          href="/admin"
-          className={`${inter.className} text-[14px] text-[#6941c6] font-semibold hover:underline`}
-        >
-          Go to admin page. **For testing purpose**
-        </Link>
       </div>
     </div>
   );

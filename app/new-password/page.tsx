@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import HeaderText1 from "@/components/HeaderText1";
 import Image from "next/image";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation"; // ✅ For navigation
 
 import starIcon from "@/public/image/create-account/starIcon.svg";
@@ -24,12 +24,23 @@ const NewPassword: React.FC = () => {
   const [retypePassword, setRetypePassword] = useState<string>("");
   const [agree, setAgree] = useState<boolean>(false);
 
+  useEffect(() => {
+    // Access localStorage only after the component has mounted (client-side)
+    const storedPassword = localStorage.getItem("password");
+    const storedRetypePassword = localStorage.getItem("retypePassword");
+
+    if (storedPassword) setPassword(storedPassword);
+    if (storedRetypePassword) setRetypePassword(storedRetypePassword);
+  }, []);
+
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
+    localStorage.setItem("password", e.target.value); // Save password to localStorage
   };
 
   const handleRetypePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setRetypePassword(e.target.value);
+    localStorage.setItem("retypePassword", e.target.value); // Save retype password to localStorage
   };
 
   const handleAgreeChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +71,14 @@ const NewPassword: React.FC = () => {
     // ✅ Navigate only if all validations pass
     router.push("/login");
   };
+
+  useEffect(() => {
+    // Clear the localStorage when the component unmounts or when the password is updated
+    return () => {
+      localStorage.removeItem("password");
+      localStorage.removeItem("retypePassword");
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#f5f5f5]">

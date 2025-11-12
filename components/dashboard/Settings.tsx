@@ -11,6 +11,7 @@ import usIcon from "@/public/image/dashboard/settings/Group.svg";
 import { Inter } from "next/font/google";
 import Image from "next/image";
 import AccountDetails from "./AccountDetails";
+import Billing from "./Billing";
 
 // --- START: MOCK COUNTRY/TIMEZONE DATA (No change here) ---
 
@@ -655,7 +656,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-10 lg:mr-12 mx-auto">
+    <div className="min-h-screen p-10 lg:mr-12 mx-auto lg:bg-[#F5F5F5]">
       <h1
         className={`${inter.className} text-3xl font-semibold text-[#181d27] mb-6`}
       >
@@ -691,9 +692,7 @@ const SettingsPage = () => {
         {activeTab === "Account" && <AccountDetails />}
 
         {/* Add content for Billing tabs here */}
-        {activeTab === "Billing" && (
-          <div>{/* Billing content will go here */}</div>
-        )}
+        {activeTab === "Billing" && <Billing />}
       </div>
     </div>
   );

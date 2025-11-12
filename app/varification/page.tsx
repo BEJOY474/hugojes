@@ -19,6 +19,7 @@ export const inter = Inter({
 
 const Verification: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState<string>("");
+
   const router = useRouter(); // ✅ Router initialized
 
   const handleCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +58,12 @@ const Verification: React.FC = () => {
             value={verificationCode}
             onChange={handleCodeChange}
             required
-            className="w-full border bg-white border-gray-300 outline-none shadow-sm rounded-lg p-3"
+            className="w-full border bg-white text-black border-gray-300 outline-none shadow-sm rounded-lg p-3 text-left sm:text-sm md:text-base"
+            style={{
+              maxWidth: "100%", // Prevents input from growing too large
+              fontSize: "16px", // Adjust font size if needed
+              letterSpacing: "1px", // Slight letter spacing to improve legibility
+            }}
           />
 
           <Button1 text="Continue" />

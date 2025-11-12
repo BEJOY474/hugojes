@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -37,97 +37,142 @@ const InputField: React.FC<InputFieldProps> = ({
   </div>
 );
 
-const AccountDetails: React.FC = () => (
-  <div className={`p-8 mx-auto rounded-xl ${inter.className}`}>
-    <div className="pt-2 mb-8">
-      <h2 className="text-[18px] font-semibold text-[#181d27]">Account</h2>
-      <p className="text-[14px] text-[#535862]">
-        Update your security and data settings here.
-      </p>
+const AccountDetails: React.FC = () => {
+  const [message, setMessage] = useState<string>("");
+
+  // State to manage input values
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [retypeNewPassword, setRetypeNewPassword] = useState("");
+
+  // Function to display message when a button is clicked
+  const handleClick = (action: string) => {
+    setMessage(`You clicked the ${action} button.`);
+
+    // Clear message after 3 seconds
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  // Function to clear all data
+  const handleClearData = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setRetypeNewPassword("");
+    setMessage("All data has been cleared.");
+
+    // Clear message after 3 seconds
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  return (
+    <div className={`p-8 mx-auto rounded-xl ${inter.className}`}>
+      <div className="pt-2 mb-8">
+        <h2 className="text-[18px] font-semibold text-[#181d27]">Account</h2>
+        <p className="text-[14px] text-[#535862]">
+          Update your security and data settings here.
+        </p>
+      </div>
+      <hr className="border-gray-200" />
+
+      {/* Change Password Section */}
+      <InputField label="Change Password">
+        <div className="space-y-4 lg:mr-72 lg:relative">
+          {/* Current Password */}
+          <div>
+            <label className="block text-[14px] font-medium text-[#414651] mb-1">
+              Current password
+            </label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="**********"
+              className={inputClass}
+            />
+          </div>
+
+          {/* New Password */}
+          <div>
+            <label className="block text-[14px] font-medium text-[#414651] mb-1">
+              New password
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="**********"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Retype New Password */}
+          <div>
+            <label className="block text-[14px] font-medium text-[#414651] mb-1">
+              Retype new password
+            </label>
+            <input
+              type="password"
+              value={retypeNewPassword}
+              onChange={(e) => setRetypeNewPassword(e.target.value)}
+              placeholder="**********"
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-3 lg:mr-72 lg:relative mt-6">
+          <button
+            type="button"
+            className="px-4 py-2 text-[14px] font-semibold text-[#414651] bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none"
+            onClick={() => handleClick("Cancel")}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 text-[14px] font-semibold text-white bg-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none"
+            onClick={() => handleClick("Save")}
+          >
+            Save
+          </button>
+        </div>
+      </InputField>
+
+      <hr className="border-gray-200" />
+
+      {/* Data and Storage Section */}
+      <InputField label="Data and Storage" className="border-b-0">
+        <button
+          type="button"
+          className="px-4 py-2 text-[14px] font-semibold text-red-600 bg-white border border-yellow-400 rounded-lg hover:bg-red-50 focus:outline-none"
+          onClick={handleClearData}
+        >
+          Clear All Data
+        </button>
+      </InputField>
+
+      <hr className="border-gray-200" />
+
+      {/* Delete Account Section */}
+      <InputField label="Delete Account" className="border-b-0">
+        <button
+          type="button"
+          className="px-4 py-2 text-[14px] font-semibold text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 focus:outline-none"
+          onClick={() => handleClick("Delete Account")}
+        >
+          Delete Account
+        </button>
+      </InputField>
+
+      {/* Message Display */}
+      {message && (
+        <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-md">
+          {message}
+        </div>
+      )}
     </div>
-    <hr className="border-gray-200" />
-
-    {/* Change Password Section */}
-    <InputField label="Change Password">
-      <div className="space-y-4 lg:mr-72 lg:relative">
-        {/* Current Password */}
-        <div>
-          <label className="block text-[14px] font-medium text-[#414651] mb-1">
-            Current password
-          </label>
-          <input
-            type="password"
-            placeholder="**********"
-            className={inputClass}
-          />
-        </div>
-
-        {/* New Password */}
-        <div>
-          <label className="block text-[14px] font-medium text-[#414651] mb-1">
-            New password
-          </label>
-          <input
-            type="password"
-            placeholder="**********"
-            className={inputClass}
-          />
-        </div>
-
-        {/* Retype New Password */}
-        <div>
-          <label className="block text-[14px] font-medium text-[#414651] mb-1">
-            Retype new password
-          </label>
-          <input
-            type="password"
-            placeholder="**********"
-            className={inputClass}
-          />
-        </div>
-      </div>
-
-      {/* Buttons */}
-      <div className="flex justify-end space-x-3 lg:mr-72 lg:relative mt-6">
-        <button
-          type="button"
-          className="px-4 py-2 text-[14px] font-semibold text-[#414651] bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="px-4 py-2 text-[14px] font-semibold text-white bg-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none"
-        >
-          Save
-        </button>
-      </div>
-    </InputField>
-
-    <hr className="border-gray-200" />
-
-    {/* Data and Storage Section */}
-    <InputField label="Data and Storage" className="border-b-0">
-      <button
-        type="button"
-        className="px-4 py-2 text-[14px] font-semibold text-red-600 bg-white border border-yellow-400 rounded-lg hover:bg-red-50 focus:outline-none"
-      >
-        Clear All Data
-      </button>
-    </InputField>
-
-    <hr className="border-gray-200" />
-
-    {/* Delete Account Section */}
-    <InputField label="Delete Account" className="border-b-0">
-      <button
-        type="button"
-        className="px-4 py-2 text-[14px] font-semibold text-white bg-red-600 border border-red-600 rounded-lg hover:bg-red-700 focus:outline-none"
-      >
-        Delete Account
-      </button>
-    </InputField>
-  </div>
-);
+  );
+};
 
 export default AccountDetails;

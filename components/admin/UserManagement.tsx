@@ -1,10 +1,13 @@
+// src/app/admin/UserManagementView/page.tsx (Assuming this is the path)
+
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 import Image from "next/image";
 import { Search, Eye, Edit, Trash2, Plus, X } from "lucide-react";
 import { Inter } from "next/font/google";
 
+// Assuming these are defined elsewhere
 import UserDetailView from "./ViewUserDetails";
 import UserEdit from "./UserEdit";
 
@@ -14,6 +17,7 @@ export const inter = Inter({
   variable: "--font-inter",
 });
 
+// --- Interface Definitions ---
 export interface User {
   id: number;
   name: string;
@@ -114,7 +118,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center p-4 z-[110]" // Added p-4 for small screen spacing
+      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center p-4 z-[110]"
       onClick={onClose}
     >
       <div
@@ -146,13 +150,13 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
           <div className="flex justify-end space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 text-sm" // Added text-sm
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 text-sm"
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 text-sm" // Added text-sm
+              className="px-4 py-2 bg-red-600 text-white rounded-lg shadow-md hover:bg-red-700 text-sm"
             >
               Yes, Delete
             </button>
@@ -195,7 +199,7 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center p-4 z-[100]" // Added p-4 for small screen spacing
+      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex justify-center items-center p-4 z-[100]"
       onClick={onClose}
     >
       <div
@@ -227,7 +231,9 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setName(e.target.value)
+              }
               placeholder="Enter user name"
               className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
@@ -240,7 +246,9 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
               placeholder="Enter user email"
               className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
@@ -253,7 +261,9 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
               placeholder="Enter password"
               className="w-full p-3 border border-gray-300 rounded-lg bg-[#F3F3F5] outline-none text-sm"
             />
@@ -285,24 +295,42 @@ const AddNewUserModal: React.FC<AddNewUserModalProps> = ({
 // =======================
 interface UserListItemProps {
   user: User;
+  searchTerm: string;
   onDeleteClick: (user: User) => void;
   onViewClick: (user: User) => void;
   onEditClick: (user: User) => void;
 }
 
+// Highlight the text that matches the search term
+const highlightText = (text: string, searchTerm: string) => {
+  if (!searchTerm) return text;
+
+  // Create a case-insensitive regular expression to find the search term
+  const regex = new RegExp(`(${searchTerm})`, "gi");
+
+  // Split the text by the search term and map over the parts
+  return text.split(regex).map((part, index) => {
+    // If the part matches the search term, wrap it with a span to highlight
+    if (part.toLowerCase() === searchTerm.toLowerCase()) {
+      return (
+        <span key={index} className="bg-yellow-200">
+          {part}
+        </span>
+      );
+    }
+    return part; // Otherwise, just return the original text
+  });
+};
+
+// FIX: Component signature updated to use the full UserListItemProps interface
 const UserListItem: React.FC<UserListItemProps> = ({
   user,
-  onDeleteClick,
-  onViewClick,
-  onEditClick,
+  searchTerm,
+  onDeleteClick, // Destructure the new props
+  onViewClick, // Destructure the new props
+  onEditClick, // Destructure the new props
 }) => {
-  const statusClasses =
-    user.status === "Active"
-      ? "bg-[#00C950] text-white"
-      : "bg-gray-100 text-gray-500";
-
   return (
-    // Changed main div to be more responsive on small screens
     <div className="p-2 sm:p-4 bg-white">
       <div className="flex flex-col sm:flex-row justify-between w-full p-3 sm:p-4 rounded-lg items-start sm:items-center bg-white border border-gray-100">
         {/* User Info (Name, Email, Status, Date) */}
@@ -317,17 +345,23 @@ const UserListItem: React.FC<UserListItemProps> = ({
           </div>
           <div className="flex flex-col min-w-0">
             <div className="flex items-center space-x-2 flex-wrap">
+              {/* Highlight the user's name */}
               <p className="text-sm sm:text-[16px] font-medium text-[#101828] truncate max-w-full sm:max-w-none">
-                {user.name}
+                {highlightText(user.name, searchTerm)} {/* Highlight name */}
               </p>
               <span
-                className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusClasses} mt-1 sm:mt-0`} // Added mt-1 for alignment on mobile
+                className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  user.status === "Active"
+                    ? "bg-[#00C950] text-white"
+                    : "bg-gray-100 text-gray-500"
+                } mt-1 sm:mt-0`}
               >
-                {user.status}
+                {highlightText(user.status, searchTerm)}{" "}
+                {/* Highlight status */}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-500 truncate max-w-[80vw] sm:max-w-none">
-              {user.email}
+              {highlightText(user.email, searchTerm)} {/* Highlight email */}
             </p>
             <p className="text-xs text-gray-400 mt-0.5 sm:mt-0">
               Registered: {user.registeredDate}
@@ -335,28 +369,28 @@ const UserListItem: React.FC<UserListItemProps> = ({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center space-x-3 sm:space-x-4 text-gray-500 flex-shrink-0">
+        {/* Action Buttons (Added to use the new props) */}
+        <div className="flex space-x-2 sm:space-x-3 flex-shrink-0">
           <button
-            className="p-1 hover:text-[#7F56D9]"
-            title="View User"
             onClick={() => onViewClick(user)}
+            className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+            title="View User Details"
           >
-            <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Eye className="h-5 w-5" />
           </button>
           <button
-            className="p-1 hover:text-[#7F56D9]"
-            title="Edit User"
             onClick={() => onEditClick(user)}
+            className="p-2 rounded-full text-blue-500 hover:bg-blue-50 transition-colors"
+            title="Edit User"
           >
-            <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Edit className="h-5 w-5" />
           </button>
           <button
-            className="p-1 hover:text-red-500"
-            title="Delete User"
             onClick={() => onDeleteClick(user)}
+            className="p-2 rounded-full text-red-500 hover:bg-red-50 transition-colors"
+            title="Delete User"
           >
-            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+            <Trash2 className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -489,9 +523,10 @@ const UserManagementView: React.FC = () => {
             <UserListItem
               key={user.id}
               user={user}
-              onDeleteClick={openDeleteModal}
-              onViewClick={handleViewUser}
-              onEditClick={handleEditUser}
+              searchTerm={searchTerm}
+              onDeleteClick={openDeleteModal} // Now correctly assigned
+              onViewClick={handleViewUser} // Now correctly assigned
+              onEditClick={handleEditUser} // Now correctly assigned
             />
           ))}
         </div>
